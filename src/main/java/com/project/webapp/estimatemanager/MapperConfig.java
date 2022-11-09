@@ -1,13 +1,10 @@
 package com.project.webapp.estimatemanager;
 
-import com.project.webapp.estimatemanager.dtos.EmployeeDto;
 import com.project.webapp.estimatemanager.dtos.EstimateDto;
-import com.project.webapp.estimatemanager.models.Employee;
 import com.project.webapp.estimatemanager.models.Estimate;
 import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.PropertyMap;
-import org.modelmapper.spi.MappingContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -22,28 +19,21 @@ public class MapperConfig {
         return modelMapper;
     }
 
-    PropertyMap<Estimate, EstimateDto> estimateMapping = new PropertyMap<Estimate, EstimateDto>() {
+    PropertyMap<Estimate, EstimateDto> estimateMapping = new PropertyMap<>() {
         @Override
         protected void configure() {
-            map().setClientEmail(source.getClient().getEmail());
-            map().setEmployeeEmail(source.getEmployee().getEmail());
-            map().setProductName(source.getProduct().getName());
+            map().setPrice(source.getPrice());
         }
     };
 
-    PropertyMap<Employee, EmployeeDto> employeeMapping = new PropertyMap<Employee, EmployeeDto>() {
+    /*PropertyMap<Employee, EmployeeDto> employeeMapping = new PropertyMap<>() {
         @Override
         protected void configure() {
             map().setEmail(source.getEmail());
             map().setName(source.getName());
             map().setPassword(source.getPassword());
         }
-    };
+    };*/
 
-    Converter<String, String> converter = new Converter<String, String>() {
-        @Override
-        public String convert(MappingContext<String, String> mappingContext) {
-            return mappingContext.getSource() == null ? "" : mappingContext.getSource().trim();
-        }
-    };
+    Converter<String, String> converter = mappingContext -> mappingContext.getSource() == null ? "" : mappingContext.getSource().trim();
 }

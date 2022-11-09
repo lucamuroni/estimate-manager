@@ -11,8 +11,11 @@ import java.util.Set;
 public class EstimateDto {
     private Long id;
     private Float price;
-    private String clientEmail;
-    private String employeeEmail;
-    private String productName;
+    //private String clientEmail;
+    //private String employeeEmail;
+    //private String productName;ù
+    private ClientDto client;
+    private EmployeeDto employee;
+    private ProductDto product;
     private Set<OptDto> options = new HashSet<>();
 }

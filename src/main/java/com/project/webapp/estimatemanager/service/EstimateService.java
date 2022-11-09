@@ -2,7 +2,6 @@ package com.project.webapp.estimatemanager.service;
 
 import com.project.webapp.estimatemanager.dtos.EstimateDto;
 import com.project.webapp.estimatemanager.dtos.OptDto;
-import com.project.webapp.estimatemanager.models.Employee;
 import com.project.webapp.estimatemanager.models.Estimate;
 import com.project.webapp.estimatemanager.models.Opt;
 import com.project.webapp.estimatemanager.repository.*;
@@ -38,9 +37,9 @@ public class EstimateService {
 
     public EstimateDto addEstimate(EstimateDto estimateDto) {
         Estimate estimate = new Estimate();
-        estimate.setClient(clientRepo.findClientByEmail(estimateDto.getClientEmail()).get());
+        estimate.setClient(clientRepo.findClientByEmail(estimateDto.getClient().getEmail()).get());
         estimate.setEmployee(employeeRepo.findEmployeeByEmail("default").get());
-        estimate.setProduct(productRepo.findProductByName(estimateDto.getProductName()).get());
+        estimate.setProduct(productRepo.findProductByName(estimateDto.getProduct().getName()).get());
         Set<Opt> opts = new HashSet<>();
         for (OptDto opt: estimateDto.getOptions()) {
             opts.add(optionRepo.findOptByName(opt.getName()).get());
