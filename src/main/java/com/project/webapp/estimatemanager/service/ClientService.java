@@ -24,12 +24,12 @@ public class ClientService {
         this.modelMapper = modelMapper;
     }
 
-    public Client addClient(ClientDto clientDto) {
+    public void addClient(ClientDto clientDto) {
         Client client = new Client();
         client.setEmail(clientDto.getEmail());
         client.setName(clientDto.getName());
         client.setPassword(clientDto.getPassword());
-        return clientRepo.save(client);
+        clientRepo.save(client);
     }
 
     public List<ClientDto> findAllClients() {
@@ -39,9 +39,9 @@ public class ClientService {
                 .toList();
     }
 
-    //public Client updateClient(Client client) {
-        //return clientRepo.save(client);
-    //}
+    public Client updateClient(Client client) {
+        return clientRepo.save(client);
+    }
 
     public Optional<ClientDto> findClientByEmail(String email) {
         Optional<Client> client = clientRepo.findClientByEmail(email);
@@ -50,7 +50,7 @@ public class ClientService {
                 .findFirst();
     }
 
-    //public void deleteClient(String email) {
-        //clientRepo.deleteClientByEmail(email);
-    //}
+    public void deleteClient(String email) {
+        clientRepo.deleteClientByEmail(email);
+    }
 }

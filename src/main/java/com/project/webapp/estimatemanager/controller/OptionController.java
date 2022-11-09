@@ -1,5 +1,6 @@
 package com.project.webapp.estimatemanager.controller;
 
+import com.project.webapp.estimatemanager.dtos.OptDto;
 import com.project.webapp.estimatemanager.models.Opt;
 import com.project.webapp.estimatemanager.service.OptionService;
 import org.springframework.http.HttpStatus;
@@ -21,43 +22,43 @@ public class OptionController {
     }
 
     @GetMapping(value = "/all")
-    public ResponseEntity<List<Opt>> getAllOptions() {
-        List<Opt> options = optionsService.findAllOptions();
+    public ResponseEntity<List<OptDto>> getAllOptions() {
+        List<OptDto> options = optionsService.findAllOptions();
         return new ResponseEntity<>(options, HttpStatus.OK);
     }
 
     @GetMapping(value = "/find")
-    public ResponseEntity<Opt> getOptionById(@RequestParam(name = "id") Long id) {
+    public ResponseEntity<OptDto> getOptionById(@RequestParam(name = "id") Long id) {
         if (optionsService.findOptionById(id).isPresent()) {
-            Opt option = optionsService.findOptionById(id).get();
+            OptDto option = optionsService.findOptionById(id).get();
             return new ResponseEntity<>(option, HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
     @PostMapping(value = "/add")
-    public ResponseEntity<Opt> addOption(@RequestBody Opt option) {
-        if (optionsService.findOptionByName(option.getName()).isPresent())
+    public ResponseEntity<Opt> addOption(@RequestBody OptDto optionDto) {
+        if (optionsService.findOptionByName(optionDto.getName()).isPresent())
             return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
-        Opt newOption = optionsService.addOption(option);
+        Opt newOption = optionsService.addOption(optionDto);
         return new ResponseEntity<>(newOption, HttpStatus.CREATED);
     }
 
-    @PutMapping(value = "/update")
-    public ResponseEntity<Opt> updateOption(@RequestBody Opt option) {
-        if (optionsService.findOptionById(option.getId()).isPresent()) {
-            Opt updateOption = optionsService.updateOption(option);
-            return new ResponseEntity<>(updateOption, HttpStatus.OK);
-        }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-    }
+    //@PutMapping(value = "/update")
+    //public ResponseEntity<Opt> updateOption(@RequestBody Opt option) {
+        //if (optionsService.findOptionById(option.getId()).isPresent()) {
+            //Opt updateOption = optionsService.updateOption(option);
+            //return new ResponseEntity<>(updateOption, HttpStatus.OK);
+        //}
+        //return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    //}
 
-    @DeleteMapping(value = "/delete")
-    public ResponseEntity<?> deleteOption(@RequestParam(name = "id") Long id) {
-        if (optionsService.findOptionById(id).isPresent()) {
-            optionsService.deleteOption(id);
-            return new ResponseEntity<>(HttpStatus.OK);
-        }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-    }
+    //@DeleteMapping(value = "/delete")
+    //public ResponseEntity<?> deleteOption(@RequestParam(name = "id") Long id) {
+        //if (optionsService.findOptionById(id).isPresent()) {
+            //optionsService.deleteOption(id);
+            //return new ResponseEntity<>(HttpStatus.OK);
+        //}
+        //return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    //}
 }
