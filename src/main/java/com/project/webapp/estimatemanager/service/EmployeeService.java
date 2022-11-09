@@ -24,12 +24,16 @@ public class EmployeeService {
         this.modelMapper = modelMapper;
     }
 
-    public void addEmployee(EmployeeDto employeeDto) {
+    public EmployeeDto addEmployee(EmployeeDto employeeDto) {
         Employee employee = new Employee();
         employee.setEmail(employeeDto.getEmail());
         employee.setName(employeeDto.getName());
         employee.setPassword(employeeDto.getPassword());
         employeeRepo.save(employee);
+        return employeeRepo.findEmployeeByEmail(employee.getEmail()).stream()
+                .map(source -> modelMapper.map(source, EmployeeDto.class))
+                .findFirst()
+                .get();
     }
 
     public List<EmployeeDto> findAllEmployees() {

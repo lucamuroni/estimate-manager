@@ -24,11 +24,15 @@ public class OptionService {
         this.modelMapper = modelMapper;
     }
 
-    public Opt addOption(OptDto optionDto) {
+    public OptDto addOption(OptDto optionDto) {
         Opt option = new Opt();
         option.setName(optionDto.getName());
         option.setType(optionDto.getType());
-        return optionRepo.save(option);
+        optionRepo.save(option);
+        return optionRepo.findOptById(option.getId()).stream()
+                .map(source -> modelMapper.map(source, OptDto.class))
+                .findFirst()
+                .get();
     }
 
     public List<OptDto> findAllOptions() {

@@ -39,8 +39,8 @@ public class EstimateController {
         if (estimateService.findEstimateById(estimateDto.getId()).isPresent()) {
             return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
         }
-        estimateService.addEstimate(estimateDto);
-        return new ResponseEntity<>(estimateDto, HttpStatus.CREATED);
+        EstimateDto newEstimate = estimateService.addEstimate(estimateDto);
+        return new ResponseEntity<>(newEstimate, HttpStatus.CREATED);
     }
 
     //@PutMapping(value = "/update")

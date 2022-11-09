@@ -36,7 +36,7 @@ public class EstimateService {
         this.modelMapper = modelMapper;
     }
 
-    public void addEstimate(EstimateDto estimateDto) {
+    public EstimateDto addEstimate(EstimateDto estimateDto) {
         Estimate estimate = new Estimate();
         estimate.setClient(clientRepo.findClientByEmail(estimateDto.getClientEmail()).get());
         estimate.setEmployee(employeeRepo.findEmployeeByEmail("default").get());
@@ -47,8 +47,11 @@ public class EstimateService {
         }
         estimate.setOptions(opts);
         estimate.setPrice(estimateDto.getPrice());
-        Estimate savedEstimate = estimateRepo.save(estimate);
-        estimateDto.setId(savedEstimate.getId());
+        estimateRepo.save(estimate);
+        return estimateRepo.findEstimateById(estimate.getId()).stream()
+                .map(source -> modelMapper.map(source, EstimateDto.class))
+                .findFirst()
+                .get();
     }
 
     public List<EstimateDto> findAllEstimates() {

@@ -37,10 +37,10 @@ public class OptionController {
     }
 
     @PostMapping(value = "/add")
-    public ResponseEntity<Opt> addOption(@RequestBody OptDto optionDto) {
+    public ResponseEntity<OptDto> addOption(@RequestBody OptDto optionDto) {
         if (optionsService.findOptionByName(optionDto.getName()).isPresent())
             return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
-        Opt newOption = optionsService.addOption(optionDto);
+        OptDto newOption = optionsService.addOption(optionDto);
         return new ResponseEntity<>(newOption, HttpStatus.CREATED);
     }
 

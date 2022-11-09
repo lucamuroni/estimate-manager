@@ -38,8 +38,8 @@ public class EmployeeController {
     public ResponseEntity<EmployeeDto> addEmployee(@RequestBody EmployeeDto employeeDto) {
         if (employeeService.findEmployeeByEmail(employeeDto.getEmail()).isPresent())
             return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
-        employeeService.addEmployee(employeeDto);
-        return new ResponseEntity<>(employeeDto, HttpStatus.CREATED);
+        EmployeeDto newEmployee = employeeService.addEmployee(employeeDto);
+        return new ResponseEntity<>(newEmployee, HttpStatus.CREATED);
     }
 
     //@PutMapping(value = "/update")

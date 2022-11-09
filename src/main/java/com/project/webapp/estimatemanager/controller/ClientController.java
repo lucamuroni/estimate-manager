@@ -1,6 +1,7 @@
 package com.project.webapp.estimatemanager.controller;
 
 import com.project.webapp.estimatemanager.dtos.ClientDto;
+import com.project.webapp.estimatemanager.models.Client;
 import com.project.webapp.estimatemanager.service.ClientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -36,11 +37,11 @@ public class ClientController {
     }
 
     @PostMapping(value = "/add")
-    public ResponseEntity<ClientDto> addClient(@RequestBody ClientDto clientDto) {
-        if (clientService.findClientByEmail(clientDto.getEmail()).isPresent())
+    public ResponseEntity<ClientDto> addClient(@RequestBody ClientDto client) {
+        if (clientService.findClientByEmail(client.getEmail()).isPresent())
             return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
-        clientService.addClient(clientDto);
-        return new ResponseEntity<>(clientDto, HttpStatus.CREATED);
+        ClientDto newClient = clientService.addClient(client);
+        return new ResponseEntity<>(newClient, HttpStatus.CREATED);
     }
 
     //@PutMapping(value = "/update")
