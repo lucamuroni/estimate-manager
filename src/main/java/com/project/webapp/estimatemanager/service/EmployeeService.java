@@ -43,9 +43,9 @@ public class EmployeeService {
                 .toList();
     }
 
-    //public Employee updateEmployee(Employee employee) {
-        //return employeeRepo.save(employee);
-    //}
+    public Employee updateEmployee(Employee employee) {
+        return employeeRepo.save(employee);
+    }
 
     public Optional<EmployeeDto> findEmployeeByEmail(String email) {
         Optional<Employee> employee = employeeRepo.findEmployeeByEmail(email);
@@ -54,7 +54,7 @@ public class EmployeeService {
                 .findFirst();
     }
 
-    //public void deleteEmployee(String email) {
-        //employeeRepo.deleteEmployeeByEmail(email);
-    //}
+    public void deleteEmployee(String email) {
+        employeeRepo.deleteEmployeeByEmail(email);
+    }
 }

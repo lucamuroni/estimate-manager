@@ -1,5 +1,6 @@
 package com.project.webapp.estimatemanager.controller;
 
+import com.project.webapp.estimatemanager.dtos.ProductDto;
 import com.project.webapp.estimatemanager.models.Product;
 import com.project.webapp.estimatemanager.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,43 +22,43 @@ public class ProductController {
 
 
     @GetMapping(value = "/all")
-    public ResponseEntity<List<Product>> getAllProducts() {
-        List<Product> products = productService.findAllProducts();
+    public ResponseEntity<List<ProductDto>> getAllProducts() {
+        List<ProductDto> products = productService.findAllProducts();
         return new ResponseEntity<>(products, HttpStatus.OK);
     }
 
     @GetMapping(value = "/find")
-    public ResponseEntity<Product> getProductById(@RequestParam(name = "id") Long id) {
+    public ResponseEntity<ProductDto> getProductById(@RequestParam(name = "id") Long id) {
         if (productService.findProductById(id).isPresent()) {
-            Product product = productService.findProductById(id).get();
+            ProductDto product = productService.findProductById(id).get();
             return new ResponseEntity<>(product, HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
     @PostMapping(value = "/add")
-    public ResponseEntity<Product> addProduct(@RequestBody Product product) {
-        if (productService.findProductByName(product.getName()).isPresent())
+    public ResponseEntity<ProductDto> addProduct(@RequestBody ProductDto productDto) {
+        if (productService.findProductByName(productDto.getName()).isPresent())
             return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
-        Product newProduct = productService.addProduct(product);
+        ProductDto newProduct = productService.addProduct(productDto);
         return new ResponseEntity<>(newProduct, HttpStatus.CREATED);
     }
 
-    @PutMapping(value = "/update")
-    public ResponseEntity<Product> updateProduct(@RequestBody Product product) {
-        if (productService.findProductById(product.getId()).isPresent()) {
-            Product updateProduct = productService.updateProduct(product);
-            return new ResponseEntity<>(updateProduct, HttpStatus.OK);
-        }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-    }
+    //@PutMapping(value = "/update")
+    //public ResponseEntity<Product> updateProduct(@RequestBody Product product) {
+        //if (productService.findProductById(product.getId()).isPresent()) {
+            //Product updateProduct = productService.updateProduct(product);
+            //return new ResponseEntity<>(updateProduct, HttpStatus.OK);
+        //}
+        //return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    //}
 
-    @DeleteMapping(value = "/delete")
-    public ResponseEntity<?> deleteProduct(@RequestParam(name = "id") Long id) {
-        if (productService.findProductById(id).isPresent()) {
-            productService.deleteProduct(id);
-            return new ResponseEntity<>(HttpStatus.OK);
-        }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-    }
+    //@DeleteMapping(value = "/delete")
+    //public ResponseEntity<?> deleteProduct(@RequestParam(name = "id") Long id) {
+        //if (productService.findProductById(id).isPresent()) {
+            //productService.deleteProduct(id);
+            //return new ResponseEntity<>(HttpStatus.OK);
+        //}
+        //return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    //}
 }
