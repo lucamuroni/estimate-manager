@@ -21,7 +21,7 @@ public class Opt implements Serializable {
     private Long id;
     @Column(nullable = false)
     private String type;
-    @Column(nullable = false)
+    @Column(unique = true, nullable = false)
     private String name;
     @ManyToMany(mappedBy = "options")
     //@JsonBackReference
