@@ -25,12 +25,19 @@ public class EmployeeService {
     }
 
     public EmployeeDto addEmployee(EmployeeDto employeeDto) {
-        Employee employee = new Employee();
-        employee.setEmail(employeeDto.getEmail());
-        employee.setName(employeeDto.getName());
-        employee.setPassword(employeeDto.getPassword());
+        Employee employee = this.saveChanges(employeeDto);
         employeeRepo.save(employee);
         return employeeRepo.findEmployeeByEmail(employee.getEmail()).stream()
+                .map(source -> modelMapper.map(source, EmployeeDto.class))
+                .findFirst()
+                .get();
+    }
+
+    public EmployeeDto updateEmployee(EmployeeDto employeeDto) {
+        Employee employee = employeeRepo.findEmployeeById(employeeDto.getId()).get();
+        Employee modifiedEmployee = this.saveChanges(employeeDto, employee);
+        employeeRepo.save(modifiedEmployee);
+        return employeeRepo.findEmployeeById(modifiedEmployee.getId()).stream()
                 .map(source -> modelMapper.map(source, EmployeeDto.class))
                 .findFirst()
                 .get();
@@ -43,10 +50,6 @@ public class EmployeeService {
                 .toList();
     }
 
-    public Employee updateEmployee(Employee employee) {
-        return employeeRepo.save(employee);
-    }
-
     public Optional<EmployeeDto> findEmployeeByEmail(String email) {
         Optional<Employee> employee = employeeRepo.findEmployeeByEmail(email);
         return employee.stream()
@@ -56,5 +59,32 @@ public class EmployeeService {
 
     public void deleteEmployee(String email) {
         employeeRepo.deleteEmployeeByEmail(email);
+    }
+
+    private Employee saveChanges(EmployeeDto employeeDto) {
+        Employee employee = new Employee();
+        employee.setEmail(employeeDto.getEmail());
+        employee.setName(employeeDto.getName());
+        employee.setPassword(employeeDto.getPassword());
+        return employee;
+    }
+
+    private Employee saveChanges(EmployeeDto employeeDto, Employee employee) {
+        if (!employeeDto.getEmail().equals(employee.getEmail())) {
+            if (employeeRepo.findEmployeeByEmail(employee.getEmail()).isPresent()) {
+                //throw new Exception("Email già presente");
+            }
+        }
+        employee.setEmail(employeeDto.getEmail());
+        employee.setName(employeeDto.getName());
+        employee.setPassword(employeeDto.getPassword());
+        return employee;
+    }
+
+    public Optional<EmployeeDto> findEmployeeById(Long id) {
+        Optional<Employee> employee = employeeRepo.findEmployeeById(id);
+        return employee.stream()
+                .map(source -> modelMapper.map(source, EmployeeDto.class))
+                .findFirst();
     }
 }

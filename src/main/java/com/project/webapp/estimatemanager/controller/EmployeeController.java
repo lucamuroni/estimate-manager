@@ -42,14 +42,14 @@ public class EmployeeController {
         return new ResponseEntity<>(newEmployee, HttpStatus.CREATED);
     }
 
-    //@PutMapping(value = "/update")
-    //public ResponseEntity<Employee> updateEmployee(@RequestBody Employee employee) {
-        //if (employeeService.findEmployeeByEmail(employee.getEmail()).isPresent()) {
-            //Employee updateEmployee = employeeService.updateEmployee(employee);
-            //return new ResponseEntity<>(updateEmployee, HttpStatus.OK);
-        //}
-        //return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-    //}
+    @PutMapping(value = "/update")
+    public ResponseEntity<EmployeeDto> updateEmployee(@RequestBody EmployeeDto employeeDto) {
+        if (employeeService.findEmployeeById(employeeDto.getId()).isPresent()) {
+            EmployeeDto updateEmployee = employeeService.updateEmployee(employeeDto);
+            return new ResponseEntity<>(updateEmployee, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
 
     //@DeleteMapping(value = "/delete")
     //public ResponseEntity<?> deleteEmployee(@RequestParam("email") String email) {

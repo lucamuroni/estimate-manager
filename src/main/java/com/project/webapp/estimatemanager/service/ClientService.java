@@ -25,12 +25,19 @@ public class ClientService {
     }
 
     public ClientDto addClient(ClientDto clientDto) {
-        Client client = new Client();
-        client.setEmail(clientDto.getEmail());
-        client.setName(clientDto.getName());
-        client.setPassword(clientDto.getPassword());
+        Client client = this.saveChanges(clientDto);
         clientRepo.save(client);
         return clientRepo.findClientByEmail(client.getEmail()).stream()
+                .map(source -> modelMapper.map(source, ClientDto.class))
+                .findFirst()
+                .get();
+    }
+
+    public ClientDto updateClient(ClientDto clientDto) {
+        Client client = clientRepo.findClientById(clientDto.getId()).get();
+        Client modifiedClient = this.saveChanges(clientDto, client);
+        clientRepo.save(modifiedClient);
+        return clientRepo.findClientById(modifiedClient.getId()).stream()
                 .map(source -> modelMapper.map(source, ClientDto.class))
                 .findFirst()
                 .get();
@@ -43,12 +50,15 @@ public class ClientService {
                 .toList();
     }
 
-    //public Client updateClient(Client client) {
-        //return clientRepo.save(client);
-    //}
-
     public Optional<ClientDto> findClientByEmail(String email) {
         Optional<Client> client = clientRepo.findClientByEmail(email);
+        return client.stream()
+                .map(source -> modelMapper.map(source, ClientDto.class))
+                .findFirst();
+    }
+
+    public Optional<ClientDto> findClientById(Long id) {
+        Optional<Client> client = clientRepo.findClientById(id);
         return client.stream()
                 .map(source -> modelMapper.map(source, ClientDto.class))
                 .findFirst();
@@ -57,4 +67,24 @@ public class ClientService {
     //public void deleteClient(String email) {
         //clientRepo.deleteClientByEmail(email);
     //}
+
+    private Client saveChanges(ClientDto clientDto) {
+        Client client = new Client();
+        client.setEmail(clientDto.getEmail());
+        client.setName(clientDto.getName());
+        client.setPassword(clientDto.getPassword());
+        return client;
+    }
+
+    private Client saveChanges(ClientDto clientDto, Client client) {
+        if (!clientDto.getEmail().equals(client.getEmail())) {
+            if (clientRepo.findClientByEmail(clientDto.getEmail()).isPresent()) {
+                //throw new Exception("Email già esistente");
+            }
+        }
+        client.setEmail(clientDto.getEmail());
+        client.setName(clientDto.getName());
+        client.setPassword(clientDto.getPassword());
+        return client;
+    }
 }

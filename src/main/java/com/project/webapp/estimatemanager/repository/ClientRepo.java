@@ -11,4 +11,6 @@ public interface ClientRepo extends JpaRepository<Client, Long> {
     Optional<Client> findClientByEmail(String email);
 
     void deleteClientByEmail(String email);
+
+    Optional<Client> findClientById(Long id);
 }

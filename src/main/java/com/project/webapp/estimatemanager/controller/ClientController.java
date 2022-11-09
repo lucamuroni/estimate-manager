@@ -1,7 +1,6 @@
 package com.project.webapp.estimatemanager.controller;
 
 import com.project.webapp.estimatemanager.dtos.ClientDto;
-import com.project.webapp.estimatemanager.models.Client;
 import com.project.webapp.estimatemanager.service.ClientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -44,14 +43,14 @@ public class ClientController {
         return new ResponseEntity<>(newClient, HttpStatus.CREATED);
     }
 
-    //@PutMapping(value = "/update")
-    //public ResponseEntity<Client> updateClient(@RequestBody Client client) {
-        //if (clientService.findClientByEmail(client.getEmail()).isPresent()) {
-            //Client updateClient = clientService.updateClient(client);
-            //return new ResponseEntity<>(updateClient, HttpStatus.OK);
-        //}
-        //return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-    //}
+    @PutMapping(value = "/update")
+    public ResponseEntity<ClientDto> updateClient(@RequestBody ClientDto clientDto) {
+        if (clientService.findClientById(clientDto.getId()).isPresent()) {
+            ClientDto updateClient = clientService.updateClient(clientDto);
+            return new ResponseEntity<>(updateClient, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
 
     //@DeleteMapping(value = "/delete")
     //public ResponseEntity<?> deleteClient(@RequestParam("email") String email) {
