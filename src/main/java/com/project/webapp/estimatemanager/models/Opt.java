@@ -26,5 +26,5 @@ public class Opt implements Serializable {
     @ManyToMany(mappedBy = "options")
     //@JsonBackReference
     @ToString.Exclude
-    private Set<Product> products = new HashSet<>();
+    private Set<Estimate> estimates = new HashSet<>();
 }

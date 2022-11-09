@@ -4,6 +4,8 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -29,4 +31,12 @@ public class Estimate implements Serializable {
     @ManyToOne
     @JoinColumn(name = "product_id", referencedColumnName = "id",nullable = false)
     private Product product;
+    @ManyToMany
+    @JoinTable(
+            name = "estimate_options",
+            joinColumns = @JoinColumn(name = "estimate_id"),
+            inverseJoinColumns = @JoinColumn(name = "option_id")
+    )
+    @ToString.Exclude
+    private Set<Opt> options = new HashSet<>();
 }

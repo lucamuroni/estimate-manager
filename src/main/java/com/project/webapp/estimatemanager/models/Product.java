@@ -24,12 +24,4 @@ public class Product implements Serializable {
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "product", orphanRemoval = true)
     //@JsonBackReference
     private Set<Estimate> estimates = new HashSet<>();
-    @ManyToMany
-    @JoinTable(
-            name = "product_options",
-            joinColumns = @JoinColumn(name = "product_id"),
-            inverseJoinColumns = @JoinColumn(name = "option_id")
-    )
-    @ToString.Exclude
-    private Set<Opt> options = new HashSet<>();
 }
