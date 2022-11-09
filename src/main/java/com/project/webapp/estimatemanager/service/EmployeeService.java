@@ -74,8 +74,8 @@ public class EmployeeService {
             if (employeeRepo.findEmployeeByEmail(employee.getEmail()).isPresent()) {
                 //throw new Exception("Email già presente");
             }
+            employee.setEmail(employeeDto.getEmail());
         }
-        employee.setEmail(employeeDto.getEmail());
         employee.setName(employeeDto.getName());
         employee.setPassword(employeeDto.getPassword());
         return employee;

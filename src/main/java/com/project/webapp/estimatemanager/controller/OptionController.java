@@ -1,7 +1,6 @@
 package com.project.webapp.estimatemanager.controller;
 
 import com.project.webapp.estimatemanager.dtos.OptDto;
-import com.project.webapp.estimatemanager.models.Opt;
 import com.project.webapp.estimatemanager.service.OptionService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,14 +43,14 @@ public class OptionController {
         return new ResponseEntity<>(newOption, HttpStatus.CREATED);
     }
 
-    //@PutMapping(value = "/update")
-    //public ResponseEntity<Opt> updateOption(@RequestBody Opt option) {
-        //if (optionsService.findOptionById(option.getId()).isPresent()) {
-            //Opt updateOption = optionsService.updateOption(option);
-            //return new ResponseEntity<>(updateOption, HttpStatus.OK);
-        //}
-        //return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-    //}
+    @PutMapping(value = "/update")
+    public ResponseEntity<OptDto> updateOption(@RequestBody OptDto optionDto) {
+        if (optionsService.findOptionById(optionDto.getId()).isPresent()) {
+            OptDto updateOption = optionsService.updateOption(optionDto);
+            return new ResponseEntity<>(updateOption, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
 
     //@DeleteMapping(value = "/delete")
     //public ResponseEntity<?> deleteOption(@RequestParam(name = "id") Long id) {

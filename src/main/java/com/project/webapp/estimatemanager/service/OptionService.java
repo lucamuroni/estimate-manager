@@ -35,15 +35,21 @@ public class OptionService {
                 .get();
     }
 
+    public OptDto updateOption(OptDto optionDto) {
+        Opt option = optionRepo.findOptById(optionDto.getId()).get();
+        Opt modifiedOption = this.saveChanges(optionDto, option);
+        optionRepo.save(modifiedOption);
+        return optionRepo.findOptById(modifiedOption.getId()).stream()
+                .map(source -> modelMapper.map(source, OptDto.class))
+                .findFirst()
+                .get();
+    }
+
     public List<OptDto> findAllOptions() {
         List<Opt> options = optionRepo.findAll();
         return options.stream()
                 .map(source -> modelMapper.map(source, OptDto.class))
                 .toList();
-    }
-
-    public Opt updateOption(Opt option) {
-        return optionRepo.save(option);
     }
 
     public Optional<OptDto> findOptionById(Long id) {
@@ -62,5 +68,16 @@ public class OptionService {
 
     public void deleteOption(Long id) {
         optionRepo.deleteOptById(id);
+    }
+
+    private Opt saveChanges(OptDto optionDto, Opt option) {
+        if (!optionDto.getName().equals(option.getName())) {
+            if (optionRepo.findOptByName(optionDto.getName()).isPresent()) {
+                //throw new Exception("Tipo di opzione già esistente");
+            }
+            option.setName(optionDto.getName());
+        }
+        option.setType(optionDto.getType());
+        return option;
     }
 }

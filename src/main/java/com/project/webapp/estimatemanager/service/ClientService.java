@@ -64,9 +64,9 @@ public class ClientService {
                 .findFirst();
     }
 
-    //public void deleteClient(String email) {
-        //clientRepo.deleteClientByEmail(email);
-    //}
+    public void deleteClient(String email) {
+        clientRepo.deleteClientByEmail(email);
+    }
 
     private Client saveChanges(ClientDto clientDto) {
         Client client = new Client();
@@ -81,8 +81,8 @@ public class ClientService {
             if (clientRepo.findClientByEmail(clientDto.getEmail()).isPresent()) {
                 //throw new Exception("Email già esistente");
             }
+            client.setEmail(clientDto.getEmail());
         }
-        client.setEmail(clientDto.getEmail());
         client.setName(clientDto.getName());
         client.setPassword(clientDto.getPassword());
         return client;
