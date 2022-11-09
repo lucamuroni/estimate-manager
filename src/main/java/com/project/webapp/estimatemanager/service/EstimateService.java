@@ -36,18 +36,19 @@ public class EstimateService {
     }
 
     public EstimateDto addEstimate(EstimateDto estimateDto) {
-        Estimate estimate = new Estimate();
-        estimate.setClient(clientRepo.findClientByEmail(estimateDto.getClient().getEmail()).get());
-        estimate.setEmployee(employeeRepo.findEmployeeByEmail("default").get());
-        estimate.setProduct(productRepo.findProductByName(estimateDto.getProduct().getName()).get());
-        Set<Opt> opts = new HashSet<>();
-        for (OptDto opt: estimateDto.getOptions()) {
-            opts.add(optionRepo.findOptByName(opt.getName()).get());
-        }
-        estimate.setOptions(opts);
-        estimate.setPrice(estimateDto.getPrice());
+        Estimate estimate = this.saveChanges(estimateDto);
         estimateRepo.save(estimate);
         return estimateRepo.findEstimateById(estimate.getId()).stream()
+                .map(source -> modelMapper.map(source, EstimateDto.class))
+                .findFirst()
+                .get();
+    }
+
+    public EstimateDto updateEstimate(EstimateDto estimateDto) {
+        Estimate estimate = estimateRepo.findEstimateById(estimateDto.getId()).get();
+        Estimate modifiedEstimate = this.saveChanges(estimateDto, estimate);
+        estimateRepo.save(modifiedEstimate);
+        return estimateRepo.findEstimateById(modifiedEstimate.getId()).stream()
                 .map(source -> modelMapper.map(source, EstimateDto.class))
                 .findFirst()
                 .get();
@@ -59,10 +60,6 @@ public class EstimateService {
                 .map(source -> modelMapper.map(source, EstimateDto.class))
                 .toList();
     }
-
-    //public Estimate updateEstimate(Estimate estimate) {
-        //return estimateRepo.save(estimate);
-    //}
 
     public Optional<EstimateDto> findEstimateById(Long id) {
         Optional<Estimate> estimate = estimateRepo.findEstimateById(id);
@@ -82,4 +79,34 @@ public class EstimateService {
     //public void deleteEstimate(Long id) {
         //estimateRepo.deleteEstimateById(id);
     //}
+
+    private Estimate saveChanges(EstimateDto estimateDto) {
+        Estimate estimate = new Estimate();
+        estimate.setClient(clientRepo.findClientByEmail(estimateDto.getClient().getEmail()).get());
+        estimate.setEmployee(employeeRepo.findEmployeeByEmail("default").get());
+        estimate.setProduct(productRepo.findProductByName(estimateDto.getProduct().getName()).get());
+        estimate.setOptions(this.modifyOptions(estimateDto.getOptions()));
+        estimate.setPrice(estimateDto.getPrice());
+        return estimate;
+    }
+
+    private Estimate saveChanges(EstimateDto estimateDto, Estimate estimate) {
+        if (!estimateDto.getProduct().getId().equals(estimate.getProduct().getId()) ||
+                !estimateDto.getClient().getId().equals(estimate.getClient().getId()) ||
+                !estimateDto.getEmployee().getId().equals(estimate.getEmployee().getId())
+        ) {
+            //throw new Exception("Tentativo modifica informazioni di base del preventivo (cliente, impiegato o prodotto");
+        }
+        estimate.setOptions(this.modifyOptions(estimateDto.getOptions()));
+        estimate.setPrice(estimateDto.getPrice());
+        return estimate;
+    }
+
+    private Set<Opt> modifyOptions(Set<OptDto> optionDto) {
+        Set<Opt> opts = new HashSet<>();
+        for (OptDto opt: optionDto) {
+            opts.add(optionRepo.findOptById(opt.getId()).get());
+        }
+        return opts;
+    }
 }

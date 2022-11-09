@@ -57,6 +57,13 @@ public class EmployeeService {
                 .findFirst();
     }
 
+    public Optional<EmployeeDto> findEmployeeById(Long id) {
+        Optional<Employee> employee = employeeRepo.findEmployeeById(id);
+        return employee.stream()
+                .map(source -> modelMapper.map(source, EmployeeDto.class))
+                .findFirst();
+    }
+
     public void deleteEmployee(String email) {
         employeeRepo.deleteEmployeeByEmail(email);
     }
@@ -79,12 +86,5 @@ public class EmployeeService {
         employee.setName(employeeDto.getName());
         employee.setPassword(employeeDto.getPassword());
         return employee;
-    }
-
-    public Optional<EmployeeDto> findEmployeeById(Long id) {
-        Optional<Employee> employee = employeeRepo.findEmployeeById(id);
-        return employee.stream()
-                .map(source -> modelMapper.map(source, EmployeeDto.class))
-                .findFirst();
     }
 }
