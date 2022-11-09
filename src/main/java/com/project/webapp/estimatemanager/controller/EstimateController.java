@@ -1,7 +1,6 @@
 package com.project.webapp.estimatemanager.controller;
 
 import com.project.webapp.estimatemanager.dtos.EstimateDto;
-import com.project.webapp.estimatemanager.models.Estimate;
 import com.project.webapp.estimatemanager.service.EstimateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

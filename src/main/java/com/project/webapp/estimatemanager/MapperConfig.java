@@ -1,6 +1,8 @@
 package com.project.webapp.estimatemanager;
 
+import com.project.webapp.estimatemanager.dtos.EmployeeDto;
 import com.project.webapp.estimatemanager.dtos.EstimateDto;
+import com.project.webapp.estimatemanager.models.Employee;
 import com.project.webapp.estimatemanager.models.Estimate;
 import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
@@ -26,6 +28,15 @@ public class MapperConfig {
             map().setClientEmail(source.getClient().getEmail());
             map().setEmployeeEmail(source.getEmployee().getEmail());
             map().setProductName(source.getProduct().getName());
+        }
+    };
+
+    PropertyMap<Employee, EmployeeDto> employeeMapping = new PropertyMap<Employee, EmployeeDto>() {
+        @Override
+        protected void configure() {
+            map().setEmail(source.getEmail());
+            map().setName(source.getName());
+            map().setPassword(source.getPassword());
         }
     };
 
