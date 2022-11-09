@@ -1,5 +1,6 @@
 package com.project.webapp.estimatemanager.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.*;
 
 import javax.persistence.*;
@@ -22,6 +23,6 @@ public class Product implements Serializable {
     private String name;
     private String imageUrl;
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "product", orphanRemoval = true)
-    //@JsonBackReference
+    @JsonBackReference
     private Set<Estimate> estimates = new HashSet<>();
 }

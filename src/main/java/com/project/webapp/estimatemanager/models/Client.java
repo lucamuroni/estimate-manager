@@ -1,5 +1,7 @@
 package com.project.webapp.estimatemanager.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.*;
 
 import javax.persistence.*;
@@ -25,6 +27,7 @@ public class Client implements Serializable {
     @Column(nullable = false)
     private String password;
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "client", orphanRemoval = true)
-    //@JsonManagedReference
+    @JsonManagedReference
+    //@JsonBackReference
     private Set<Estimate> estimates = new HashSet<>();
 }

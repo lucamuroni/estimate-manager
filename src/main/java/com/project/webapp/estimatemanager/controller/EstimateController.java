@@ -1,5 +1,6 @@
 package com.project.webapp.estimatemanager.controller;
 
+import com.project.webapp.estimatemanager.dtos.EstimateDto;
 import com.project.webapp.estimatemanager.models.Estimate;
 import com.project.webapp.estimatemanager.service.EstimateService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,49 +21,49 @@ public class EstimateController {
     }
 
     @GetMapping(value = "/all")
-    public ResponseEntity<List<Estimate>> getAllEstimates() {
-        List<Estimate> estimates = estimateService.findAllEstimates();
+    public ResponseEntity<List<EstimateDto>> getAllEstimates() {
+        List<EstimateDto> estimates = estimateService.findAllEstimates();
         return new ResponseEntity<>(estimates, HttpStatus.OK);
     }
 
     @GetMapping(value = "/find")
-    public ResponseEntity<Estimate> getEstimateById(@RequestParam(name = "id") Long id) {
+    public ResponseEntity<EstimateDto> getEstimateById(@RequestParam(name = "id") Long id) {
         if (estimateService.findEstimateById(id).isPresent()) {
-            Estimate estimate = estimateService.findEstimateById(id).get();
+            EstimateDto estimate = estimateService.findEstimateById(id).get();
             return new ResponseEntity<>(estimate, HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
     @PostMapping(value = "/add")
-    public ResponseEntity<Estimate> addEstimate(@RequestBody Estimate estimate) {
-        if (estimateService.findEstimateById(estimate.getId()).isPresent()) {
+    public ResponseEntity<EstimateDto> addEstimate(@RequestBody EstimateDto estimateDto) {
+        if (estimateService.findEstimateById(estimateDto.getId()).isPresent()) {
             return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
         }
-        Estimate newEstimate = estimateService.addEstimate(estimate);
-        return new ResponseEntity<>(estimate, HttpStatus.CREATED);
+        estimateService.addEstimate(estimateDto);
+        return new ResponseEntity<>(estimateDto, HttpStatus.CREATED);
     }
 
-    @PutMapping(value = "/update")
-    public ResponseEntity<Estimate> updateEstimate(@RequestBody Estimate estimate) {
-        if (estimateService.findEstimateById(estimate.getId()).isPresent()) {
-            Estimate dbEstimate = estimateService.findEstimateById(estimate.getId()).get();
-            if (dbEstimate.getEmployee().equals(estimate.getEmployee()) && dbEstimate.getClient().equals(estimate.getClient()) && dbEstimate.getProduct().equals(estimate.getProduct())) {
-                Estimate updateEstimate = estimateService.updateEstimate(estimate);
-                return new ResponseEntity<>(estimate, HttpStatus.OK);
-            } else {
-                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-            }
-        }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-    }
+    //@PutMapping(value = "/update")
+    //public ResponseEntity<Estimate> updateEstimate(@RequestBody Estimate estimate) {
+        //if (estimateService.findEstimateById(estimate.getId()).isPresent()) {
+            //Estimate dbEstimate = estimateService.findEstimateById(estimate.getId()).get();
+            //if (dbEstimate.getEmployee().equals(estimate.getEmployee()) && dbEstimate.getClient().equals(estimate.getClient()) && dbEstimate.getProduct().equals(estimate.getProduct())) {
+                //Estimate updateEstimate = estimateService.updateEstimate(estimate);
+                //return new ResponseEntity<>(estimate, HttpStatus.OK);
+            //} else {
+                //return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            //}
+        //}
+        //return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    //}
 
-    @DeleteMapping(value = "/delete")
-    public ResponseEntity<?> deleteEstimate(@RequestParam(name = "id") Long id) {
-        if (estimateService.findEstimateById(id).isPresent()) {
-            estimateService.deleteEstimate(id);
-            return new ResponseEntity<>(HttpStatus.OK);
-        }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-    }
+    //@DeleteMapping(value = "/delete")
+    //public ResponseEntity<?> deleteEstimate(@RequestParam(name = "id") Long id) {
+        //if (estimateService.findEstimateById(id).isPresent()) {
+            //estimateService.deleteEstimate(id);
+            //return new ResponseEntity<>(HttpStatus.OK);
+        //}
+        //return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    //}
 }

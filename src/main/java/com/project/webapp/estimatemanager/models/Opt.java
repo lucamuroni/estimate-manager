@@ -1,5 +1,6 @@
 package com.project.webapp.estimatemanager.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.*;
 
 import javax.persistence.*;
@@ -24,7 +25,7 @@ public class Opt implements Serializable {
     @Column(unique = true, nullable = false)
     private String name;
     @ManyToMany(mappedBy = "options")
-    //@JsonBackReference
+    @JsonBackReference
     @ToString.Exclude
     private Set<Estimate> estimates = new HashSet<>();
 }

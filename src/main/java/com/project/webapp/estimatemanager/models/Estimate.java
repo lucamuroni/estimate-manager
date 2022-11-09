@@ -1,5 +1,6 @@
 package com.project.webapp.estimatemanager.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.*;
 
 import javax.persistence.*;
@@ -22,11 +23,11 @@ public class Estimate implements Serializable {
     //private Date;
     @ManyToOne
     @JoinColumn(name = "client_id", referencedColumnName = "id", nullable = false)
-    //@JsonBackReference
+    @JsonBackReference
     private Client client;
     @ManyToOne
     @JoinColumn(name = "employee_id", referencedColumnName = "id",nullable = false)
-    //@JsonBackReference
+    @JsonBackReference
     private Employee employee;
     @ManyToOne
     @JoinColumn(name = "product_id", referencedColumnName = "id",nullable = false)
