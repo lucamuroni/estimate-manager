@@ -35,15 +35,21 @@ public class ProductService {
                 .get();
     }
 
+    public ProductDto updateProduct(ProductDto productDto) {
+        Product product = productRepo.findProductById(productDto.getId()).get();
+        Product modifiedProduct = this.saveChanges(productDto, product);
+        productRepo.save(modifiedProduct);
+        return productRepo.findProductById(modifiedProduct.getId()).stream()
+                .map(source -> modelMapper.map(source, ProductDto.class))
+                .findFirst()
+                .get();
+    }
+
     public List<ProductDto> findAllProducts() {
         List<Product> products = productRepo.findAll();
         return products.stream()
                 .map(source -> modelMapper.map(source, ProductDto.class))
                 .toList();
-    }
-
-    public Product updateProduct(Product product) {
-        return productRepo.save(product);
     }
 
     public Optional<ProductDto> findProductById(Long id) {
@@ -62,5 +68,16 @@ public class ProductService {
 
     public void deleteProduct(Long id) {
         productRepo.deleteProductById(id);
+    }
+
+    private Product saveChanges(ProductDto productDto, Product product) {
+        if (!productDto.getName().equals(product.getName())) {
+            if (productRepo.findProductByName(productDto.getName()).isPresent()) {
+                //throw new Exception("Prodotto con quel nome già esistente");
+            }
+            product.setName(productDto.getName());
+        }
+        product.setImageUrl(productDto.getImageUrl());
+        return product;
     }
 }

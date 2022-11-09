@@ -1,7 +1,6 @@
 package com.project.webapp.estimatemanager.controller;
 
 import com.project.webapp.estimatemanager.dtos.ProductDto;
-import com.project.webapp.estimatemanager.models.Product;
 import com.project.webapp.estimatemanager.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -44,14 +43,14 @@ public class ProductController {
         return new ResponseEntity<>(newProduct, HttpStatus.CREATED);
     }
 
-    //@PutMapping(value = "/update")
-    //public ResponseEntity<Product> updateProduct(@RequestBody Product product) {
-        //if (productService.findProductById(product.getId()).isPresent()) {
-            //Product updateProduct = productService.updateProduct(product);
-            //return new ResponseEntity<>(updateProduct, HttpStatus.OK);
-        //}
-        //return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-    //}
+    @PutMapping(value = "/update")
+    public ResponseEntity<ProductDto> updateProduct(@RequestBody ProductDto productDto) {
+        if (productService.findProductById(productDto.getId()).isPresent()) {
+            ProductDto updateProduct = productService.updateProduct(productDto);
+            return new ResponseEntity<>(updateProduct, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
 
     //@DeleteMapping(value = "/delete")
     //public ResponseEntity<?> deleteProduct(@RequestParam(name = "id") Long id) {
