@@ -1,6 +1,8 @@
 package com.project.webapp.estimatemanager.controller;
 
 import com.project.webapp.estimatemanager.dtos.ClientDto;
+import com.project.webapp.estimatemanager.exception.UserNotFoundException;
+import com.project.webapp.estimatemanager.exception.NameAlreadyTakenException;
 import com.project.webapp.estimatemanager.service.ClientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -27,37 +29,42 @@ public class ClientController {
     }
 
     @GetMapping(value = "/find")
-    public ResponseEntity<ClientDto> getClientByEmail(@RequestParam("email") String email) {
-        if (clientService.findClientByEmail(email).isPresent()) {
-            ClientDto client = clientService.findClientByEmail(email).get();
-            return new ResponseEntity<>(client, HttpStatus.OK);
+    public ResponseEntity<ClientDto> getClientById(@RequestParam("id") Long id) throws UserNotFoundException {
+        if (clientService.findClientById(id).isEmpty()) {
+            throw new UserNotFoundException("Cliente assente o id errato");
         }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        ClientDto client = clientService.findClientById(id).get();
+        return new ResponseEntity<>(client, HttpStatus.OK);
     }
 
     @PostMapping(value = "/add")
-    public ResponseEntity<ClientDto> addClient(@RequestBody ClientDto client) {
+    public ResponseEntity<ClientDto> addClient(@RequestBody ClientDto client) throws NameAlreadyTakenException {
         if (clientService.findClientByEmail(client.getEmail()).isPresent())
-            return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
+            throw new NameAlreadyTakenException("Nome utente non disponibile");
         ClientDto newClient = clientService.addClient(client);
         return new ResponseEntity<>(newClient, HttpStatus.CREATED);
     }
 
     @PutMapping(value = "/update")
-    public ResponseEntity<ClientDto> updateClient(@RequestBody ClientDto clientDto) {
-        if (clientService.findClientById(clientDto.getId()).isPresent()) {
-            ClientDto updateClient = clientService.updateClient(clientDto);
-            return new ResponseEntity<>(updateClient, HttpStatus.OK);
+    public ResponseEntity<ClientDto> updateClient(@RequestBody ClientDto clientDto) throws UserNotFoundException, NameAlreadyTakenException {
+        if (clientService.findClientById(clientDto.getId()).isEmpty()) {
+            throw new UserNotFoundException("Cliente assente o id errato");
         }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        ClientDto updateClient;
+        try {
+            updateClient = clientService.updateClient(clientDto);
+        } catch (Exception e) {
+            throw new NameAlreadyTakenException(e.getMessage());
+        }
+        return new ResponseEntity<>(updateClient, HttpStatus.OK);
     }
 
     @DeleteMapping(value = "/delete")
-    public ResponseEntity<?> deleteClient(@RequestParam("id") Long id) {
-        if (clientService.findClientById(id).isPresent()) {
-            clientService.deleteClient(id);
-            return new ResponseEntity<>(HttpStatus.OK);
+    public ResponseEntity<?> deleteClient(@RequestParam("id") Long id) throws UserNotFoundException {
+        if (clientService.findClientById(id).isEmpty()) {
+            throw new UserNotFoundException("Cliente assente o id errato");
         }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        clientService.deleteClient(id);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

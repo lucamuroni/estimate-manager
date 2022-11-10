@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 //TODO: inserire tutti i try catch
@@ -35,14 +36,19 @@ public class OptionService {
                 .get();
     }
 
-    public OptDto updateOption(OptDto optionDto) {
-        Opt option = optionRepo.findOptById(optionDto.getId()).get();
-        Opt modifiedOption = this.saveChanges(optionDto, option);
-        optionRepo.save(modifiedOption);
-        return optionRepo.findOptById(modifiedOption.getId()).stream()
-                .map(source -> modelMapper.map(source, OptDto.class))
-                .findFirst()
-                .get();
+    public OptDto updateOption(OptDto optionDto) throws Exception {
+        try {
+            Opt option = optionRepo.findOptById(optionDto.getId()).get();
+            Opt modifiedOption = this.saveChanges(optionDto, option);
+            optionRepo.save(modifiedOption);
+            return optionRepo.findOptById(modifiedOption.getId()).stream()
+                    .map(source -> modelMapper.map(source, OptDto.class))
+                    .findFirst()
+                    .get();
+        } catch (NoSuchElementException e) {
+            throw new Exception("Dato non trovato");
+        }
+
     }
 
     public List<OptDto> findAllOptions() {
@@ -70,10 +76,10 @@ public class OptionService {
         optionRepo.deleteOptById(id);
     }
 
-    private Opt saveChanges(OptDto optionDto, Opt option) {
+    private Opt saveChanges(OptDto optionDto, Opt option) throws Exception {
         if (!optionDto.getName().equals(option.getName())) {
             if (optionRepo.findOptByName(optionDto.getName()).isPresent()) {
-                //throw new Exception("Tipo di opzione già esistente");
+                throw new Exception("Opzione con quel nome già esistente");
             }
             option.setName(optionDto.getName());
         }

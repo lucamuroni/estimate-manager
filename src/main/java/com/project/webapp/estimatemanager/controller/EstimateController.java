@@ -1,6 +1,10 @@
 package com.project.webapp.estimatemanager.controller;
 
 import com.project.webapp.estimatemanager.dtos.EstimateDto;
+import com.project.webapp.estimatemanager.exception.AccessNotAllowedException;
+import com.project.webapp.estimatemanager.exception.DataNotFoundException;
+import com.project.webapp.estimatemanager.exception.EstimateNotFoundException;
+import com.project.webapp.estimatemanager.exception.UserNotFoundException;
 import com.project.webapp.estimatemanager.service.ClientService;
 import com.project.webapp.estimatemanager.service.EmployeeService;
 import com.project.webapp.estimatemanager.service.EstimateService;
@@ -32,64 +36,87 @@ public class EstimateController {
     }
 
     @GetMapping(value = "/find")
-    public ResponseEntity<EstimateDto> getEstimateById(@RequestParam(name = "id") Long id) {
-        if (estimateService.findEstimateById(id).isPresent()) {
-            EstimateDto estimate = estimateService.findEstimateById(id).get();
-            return new ResponseEntity<>(estimate, HttpStatus.OK);
+    public ResponseEntity<EstimateDto> getEstimateById(@RequestParam(name = "id") Long id) throws EstimateNotFoundException {
+        if (estimateService.findEstimateById(id).isEmpty()) {
+            throw new EstimateNotFoundException("Preventivo assente o id errato");
         }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        EstimateDto estimate = estimateService.findEstimateById(id).get();
+        return new ResponseEntity<>(estimate, HttpStatus.OK);
     }
 
     @GetMapping(value = "/client")
-    public ResponseEntity<List<EstimateDto>> getEstimatesByClientId(@RequestParam(name = "id") Long id) {
-        if (clientService.findClientById(id).isPresent()) {
+    public ResponseEntity<List<EstimateDto>> getEstimatesByClientId(@RequestParam(name = "id") Long id) throws UserNotFoundException, DataNotFoundException {
+        if (clientService.findClientById(id).isEmpty()) {
+            throw new UserNotFoundException("Cliente non trovato o id errato, preventivi non disponibili");
+        }
+        try {
             List<EstimateDto> estimates = estimateService.findEstimatesByClientId(id);
             return new ResponseEntity<>(estimates, HttpStatus.OK);
+        } catch (Exception e) {
+            throw new DataNotFoundException(e.getMessage());
         }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
     }
 
     @GetMapping(value = "/employee")
-    public ResponseEntity<List<EstimateDto>> getEstimatesByEmployeeId(@RequestParam(name = "id") Long id) {
-        if (employeeService.findEmployeeById(id).isPresent()) {
+    public ResponseEntity<List<EstimateDto>> getEstimatesByEmployeeId(@RequestParam(name = "id") Long id) throws UserNotFoundException, DataNotFoundException {
+        if (employeeService.findEmployeeById(id).isEmpty()) {
+            throw new UserNotFoundException("Impiegato non trovato o id errato, preventivi non disponibili");
+        }
+        try {
             List<EstimateDto> estimates = estimateService.findEstimateByEmployeeId(id);
             return new ResponseEntity<>(estimates, HttpStatus.OK);
+        } catch (Exception e) {
+            throw new DataNotFoundException(e.getMessage());
         }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
     }
 
     @GetMapping(value = "/unmanaged")
-    public ResponseEntity<List<EstimateDto>> getEstimatesUnmanaged() {
-        List<EstimateDto> estimates = estimateService.findEstimateByEmployeeId(employeeService.findEmployeeByEmail("default").get().getId());
-        if (estimates.isEmpty())
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        return new ResponseEntity<>(estimates, HttpStatus.OK);
+    public ResponseEntity<List<EstimateDto>> getEstimatesUnmanaged() throws DataNotFoundException {
+        try {
+            List<EstimateDto> estimates = estimateService.findEstimateByEmployeeId(employeeService.findEmployeeByEmail("default").get().getId());
+            if (estimates.isEmpty())
+                throw new DataNotFoundException("Nessun preventivo risulta ancora dover essere gestito da un impiegato");
+            return new ResponseEntity<>(estimates, HttpStatus.OK);
+        } catch (Exception e) {
+            throw new DataNotFoundException("Dato non trovato");
+        }
+
     }
 
+    //Gestione eccezioni mancante
     @PostMapping(value = "/add")
-    public ResponseEntity<EstimateDto> addEstimate(@RequestBody EstimateDto estimateDto) {
-        if (estimateService.findEstimateById(estimateDto.getId()).isPresent()) {
-            return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
+    public ResponseEntity<EstimateDto> addEstimate(@RequestBody EstimateDto estimateDto) throws DataNotFoundException {
+        EstimateDto newEstimate;
+        try {
+            newEstimate = estimateService.addEstimate(estimateDto);
+        } catch (Exception e) {
+            throw new DataNotFoundException(e.getMessage());
         }
-        EstimateDto newEstimate = estimateService.addEstimate(estimateDto);
         return new ResponseEntity<>(newEstimate, HttpStatus.CREATED);
     }
 
     @PutMapping(value = "/update")
-    public ResponseEntity<EstimateDto> updateEstimate(@RequestBody EstimateDto estimateDto) {
-        if (estimateService.findEstimateById(estimateDto.getId()).isPresent()) {
-            EstimateDto updateEstimate = estimateService.updateEstimate(estimateDto);
-            return new ResponseEntity<>(updateEstimate, HttpStatus.OK);
+    public ResponseEntity<EstimateDto> updateEstimate(@RequestBody EstimateDto estimateDto) throws EstimateNotFoundException, AccessNotAllowedException {
+        if (estimateService.findEstimateById(estimateDto.getId()).isEmpty()) {
+            throw new EstimateNotFoundException("Preventivo assente o id errato");
         }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        EstimateDto updateEstimate;
+        try {
+            updateEstimate = estimateService.updateEstimate(estimateDto);
+        } catch (Exception e) {
+            throw new AccessNotAllowedException(e.getMessage());
+        }
+        return new ResponseEntity<>(updateEstimate, HttpStatus.OK);
     }
 
     @DeleteMapping(value = "/delete")
-    public ResponseEntity<?> deleteEstimate(@RequestParam(name = "id") Long id) {
-        if (estimateService.findEstimateById(id).isPresent()) {
-            estimateService.deleteEstimate(id);
-            return new ResponseEntity<>(HttpStatus.OK);
+    public ResponseEntity<?> deleteEstimate(@RequestParam(name = "id") Long id) throws EstimateNotFoundException {
+        if (estimateService.findEstimateById(id).isEmpty()) {
+            throw new EstimateNotFoundException("Preventivo assente o id errato");
         }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        estimateService.deleteEstimate(id);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

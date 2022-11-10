@@ -1,6 +1,8 @@
 package com.project.webapp.estimatemanager.controller;
 
 import com.project.webapp.estimatemanager.dtos.EmployeeDto;
+import com.project.webapp.estimatemanager.exception.UserNotFoundException;
+import com.project.webapp.estimatemanager.exception.NameAlreadyTakenException;
 import com.project.webapp.estimatemanager.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -26,37 +28,42 @@ public class EmployeeController {
     }
 
     @GetMapping(value = "/find")
-    public ResponseEntity<EmployeeDto> getEmployeeByEmail(@RequestParam("email") String email) {
-        if (employeeService.findEmployeeByEmail(email).isPresent()) {
-            EmployeeDto employee = employeeService.findEmployeeByEmail(email).get();
-            return new ResponseEntity<>(employee, HttpStatus.OK);
+    public ResponseEntity<EmployeeDto> getEmployeeByEmail(@RequestParam("id") Long id) throws UserNotFoundException {
+        if (employeeService.findEmployeeById(id).isEmpty()) {
+            throw new UserNotFoundException("Impiegato assente o id errato");
         }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        EmployeeDto employee = employeeService.findEmployeeById(id).get();
+        return new ResponseEntity<>(employee, HttpStatus.OK);
     }
 
     @PostMapping(value = "/add")
-    public ResponseEntity<EmployeeDto> addEmployee(@RequestBody EmployeeDto employeeDto) {
+    public ResponseEntity<EmployeeDto> addEmployee(@RequestBody EmployeeDto employeeDto) throws NameAlreadyTakenException {
         if (employeeService.findEmployeeByEmail(employeeDto.getEmail()).isPresent())
-            return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
+            throw new NameAlreadyTakenException("Nome utente non disponibile");
         EmployeeDto newEmployee = employeeService.addEmployee(employeeDto);
         return new ResponseEntity<>(newEmployee, HttpStatus.CREATED);
     }
 
     @PutMapping(value = "/update")
-    public ResponseEntity<EmployeeDto> updateEmployee(@RequestBody EmployeeDto employeeDto) {
-        if (employeeService.findEmployeeById(employeeDto.getId()).isPresent()) {
-            EmployeeDto updateEmployee = employeeService.updateEmployee(employeeDto);
-            return new ResponseEntity<>(updateEmployee, HttpStatus.OK);
+    public ResponseEntity<EmployeeDto> updateEmployee(@RequestBody EmployeeDto employeeDto) throws UserNotFoundException, NameAlreadyTakenException {
+        if (employeeService.findEmployeeById(employeeDto.getId()).isEmpty()) {
+            throw new UserNotFoundException("Impiegato assente o id errato");
         }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        EmployeeDto updateEmployee;
+        try {
+            updateEmployee = employeeService.updateEmployee(employeeDto);
+        } catch (Exception e) {
+            throw new NameAlreadyTakenException(e.getMessage());
+        }
+        return new ResponseEntity<>(updateEmployee, HttpStatus.OK);
     }
 
     @DeleteMapping(value = "/delete")
-    public ResponseEntity<?> deleteEmployee(@RequestParam("id") Long id) {
-        if (employeeService.findEmployeeById(id).isPresent()) {
-            employeeService.deleteEmployee(id);
-            return new ResponseEntity<>(HttpStatus.OK);
+    public ResponseEntity<?> deleteEmployee(@RequestParam("id") Long id) throws UserNotFoundException {
+        if (employeeService.findEmployeeById(id).isEmpty()) {
+            throw new UserNotFoundException("Impiegato assente o id errato");
         }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        employeeService.deleteEmployee(id);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

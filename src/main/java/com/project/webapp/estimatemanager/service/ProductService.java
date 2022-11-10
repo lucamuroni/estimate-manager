@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 //TODO: inserire tutti i try catch
@@ -35,14 +36,19 @@ public class ProductService {
                 .get();
     }
 
-    public ProductDto updateProduct(ProductDto productDto) {
-        Product product = productRepo.findProductById(productDto.getId()).get();
-        Product modifiedProduct = this.saveChanges(productDto, product);
-        productRepo.save(modifiedProduct);
-        return productRepo.findProductById(modifiedProduct.getId()).stream()
-                .map(source -> modelMapper.map(source, ProductDto.class))
-                .findFirst()
-                .get();
+    public ProductDto updateProduct(ProductDto productDto) throws Exception {
+        try {
+            Product product = productRepo.findProductById(productDto.getId()).get();
+            Product modifiedProduct = this.saveChanges(productDto, product);
+            productRepo.save(modifiedProduct);
+            return productRepo.findProductById(modifiedProduct.getId()).stream()
+                    .map(source -> modelMapper.map(source, ProductDto.class))
+                    .findFirst()
+                    .get();
+        } catch (NoSuchElementException e) {
+            throw new Exception("Dato non trovato");
+        }
+
     }
 
     public List<ProductDto> findAllProducts() {
@@ -70,10 +76,10 @@ public class ProductService {
         productRepo.deleteProductById(id);
     }
 
-    private Product saveChanges(ProductDto productDto, Product product) {
+    private Product saveChanges(ProductDto productDto, Product product) throws Exception {
         if (!productDto.getName().equals(product.getName())) {
             if (productRepo.findProductByName(productDto.getName()).isPresent()) {
-                //throw new Exception("Prodotto con quel nome già esistente");
+                throw new Exception("Prodotto con quel nome già esistente");
             }
             product.setName(productDto.getName());
         }

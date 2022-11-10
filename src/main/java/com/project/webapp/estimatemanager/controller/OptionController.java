@@ -1,6 +1,8 @@
 package com.project.webapp.estimatemanager.controller;
 
 import com.project.webapp.estimatemanager.dtos.OptDto;
+import com.project.webapp.estimatemanager.exception.NameAlreadyTakenException;
+import com.project.webapp.estimatemanager.exception.OptionNotFoundException;
 import com.project.webapp.estimatemanager.service.OptionService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,37 +29,42 @@ public class OptionController {
     }
 
     @GetMapping(value = "/find")
-    public ResponseEntity<OptDto> getOptionById(@RequestParam(name = "id") Long id) {
-        if (optionsService.findOptionById(id).isPresent()) {
-            OptDto option = optionsService.findOptionById(id).get();
-            return new ResponseEntity<>(option, HttpStatus.OK);
+    public ResponseEntity<OptDto> getOptionById(@RequestParam(name = "id") Long id) throws OptionNotFoundException {
+        if (optionsService.findOptionById(id).isEmpty()) {
+            throw new OptionNotFoundException("Opzione assente o id errato");
         }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        OptDto option = optionsService.findOptionById(id).get();
+        return new ResponseEntity<>(option, HttpStatus.OK);
     }
 
     @PostMapping(value = "/add")
-    public ResponseEntity<OptDto> addOption(@RequestBody OptDto optionDto) {
+    public ResponseEntity<OptDto> addOption(@RequestBody OptDto optionDto) throws NameAlreadyTakenException {
         if (optionsService.findOptionByName(optionDto.getName()).isPresent())
-            return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
+            throw new NameAlreadyTakenException("Nome opzione non disponibile");
         OptDto newOption = optionsService.addOption(optionDto);
         return new ResponseEntity<>(newOption, HttpStatus.CREATED);
     }
 
     @PutMapping(value = "/update")
-    public ResponseEntity<OptDto> updateOption(@RequestBody OptDto optionDto) {
-        if (optionsService.findOptionById(optionDto.getId()).isPresent()) {
-            OptDto updateOption = optionsService.updateOption(optionDto);
-            return new ResponseEntity<>(updateOption, HttpStatus.OK);
+    public ResponseEntity<OptDto> updateOption(@RequestBody OptDto optionDto) throws OptionNotFoundException, NameAlreadyTakenException {
+        if (optionsService.findOptionById(optionDto.getId()).isEmpty()) {
+            throw new OptionNotFoundException("Opzione assente o id errato");
         }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        OptDto updateOption;
+        try {
+            updateOption = optionsService.updateOption(optionDto);
+        } catch (Exception e) {
+            throw new NameAlreadyTakenException(e.getMessage());
+        }
+        return new ResponseEntity<>(updateOption, HttpStatus.OK);
     }
 
     @DeleteMapping(value = "/delete")
-    public ResponseEntity<?> deleteOption(@RequestParam(name = "id") Long id) {
-        if (optionsService.findOptionById(id).isPresent()) {
-            optionsService.deleteOption(id);
-            return new ResponseEntity<>(HttpStatus.OK);
+    public ResponseEntity<?> deleteOption(@RequestParam(name = "id") Long id) throws OptionNotFoundException {
+        if (optionsService.findOptionById(id).isEmpty()) {
+            throw new OptionNotFoundException("Opzione assente o id errato");
         }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        optionsService.deleteOption(id);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 //TODO: inserire tutti i try catch
@@ -33,14 +34,19 @@ public class EmployeeService {
                 .get();
     }
 
-    public EmployeeDto updateEmployee(EmployeeDto employeeDto) {
-        Employee employee = employeeRepo.findEmployeeById(employeeDto.getId()).get();
-        Employee modifiedEmployee = this.saveChanges(employeeDto, employee);
-        employeeRepo.save(modifiedEmployee);
-        return employeeRepo.findEmployeeById(modifiedEmployee.getId()).stream()
-                .map(source -> modelMapper.map(source, EmployeeDto.class))
-                .findFirst()
-                .get();
+    public EmployeeDto updateEmployee(EmployeeDto employeeDto) throws Exception {
+        try {
+            Employee employee = employeeRepo.findEmployeeById(employeeDto.getId()).get();
+            Employee modifiedEmployee = this.saveChanges(employeeDto, employee);
+            employeeRepo.save(modifiedEmployee);
+            return employeeRepo.findEmployeeById(modifiedEmployee.getId()).stream()
+                    .map(source -> modelMapper.map(source, EmployeeDto.class))
+                    .findFirst()
+                    .get();
+        } catch (NoSuchElementException e) {
+            throw new Exception("Dato non trovato");
+        }
+
     }
 
     public List<EmployeeDto> findAllEmployees() {
@@ -76,10 +82,10 @@ public class EmployeeService {
         return employee;
     }
 
-    private Employee saveChanges(EmployeeDto employeeDto, Employee employee) {
+    private Employee saveChanges(EmployeeDto employeeDto, Employee employee) throws Exception {
         if (!employeeDto.getEmail().equals(employee.getEmail())) {
             if (employeeRepo.findEmployeeByEmail(employee.getEmail()).isPresent()) {
-                //throw new Exception("Email già presente");
+                throw new Exception("Nuovo nome utente non disponibile, ritentare");
             }
             employee.setEmail(employeeDto.getEmail());
         }

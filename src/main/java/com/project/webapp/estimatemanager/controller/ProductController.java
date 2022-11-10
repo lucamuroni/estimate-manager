@@ -1,6 +1,8 @@
 package com.project.webapp.estimatemanager.controller;
 
 import com.project.webapp.estimatemanager.dtos.ProductDto;
+import com.project.webapp.estimatemanager.exception.NameAlreadyTakenException;
+import com.project.webapp.estimatemanager.exception.ProductNotFoundException;
 import com.project.webapp.estimatemanager.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -27,37 +29,42 @@ public class ProductController {
     }
 
     @GetMapping(value = "/find")
-    public ResponseEntity<ProductDto> getProductById(@RequestParam(name = "id") Long id) {
-        if (productService.findProductById(id).isPresent()) {
-            ProductDto product = productService.findProductById(id).get();
-            return new ResponseEntity<>(product, HttpStatus.OK);
+    public ResponseEntity<ProductDto> getProductById(@RequestParam(name = "id") Long id) throws ProductNotFoundException {
+        if (productService.findProductById(id).isEmpty()) {
+            throw new ProductNotFoundException("Prodotto assente o id errato");
         }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        ProductDto product = productService.findProductById(id).get();
+        return new ResponseEntity<>(product, HttpStatus.OK);
     }
 
     @PostMapping(value = "/add")
-    public ResponseEntity<ProductDto> addProduct(@RequestBody ProductDto productDto) {
+    public ResponseEntity<ProductDto> addProduct(@RequestBody ProductDto productDto) throws NameAlreadyTakenException {
         if (productService.findProductByName(productDto.getName()).isPresent())
-            return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
+            throw new NameAlreadyTakenException("Nome prodotto non disponibile");
         ProductDto newProduct = productService.addProduct(productDto);
         return new ResponseEntity<>(newProduct, HttpStatus.CREATED);
     }
 
     @PutMapping(value = "/update")
-    public ResponseEntity<ProductDto> updateProduct(@RequestBody ProductDto productDto) {
-        if (productService.findProductById(productDto.getId()).isPresent()) {
-            ProductDto updateProduct = productService.updateProduct(productDto);
-            return new ResponseEntity<>(updateProduct, HttpStatus.OK);
+    public ResponseEntity<ProductDto> updateProduct(@RequestBody ProductDto productDto) throws ProductNotFoundException, NameAlreadyTakenException {
+        if (productService.findProductById(productDto.getId()).isEmpty()) {
+            throw new ProductNotFoundException("Prodotto assente o id errato");
         }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        ProductDto updateProduct;
+        try {
+            updateProduct = productService.updateProduct(productDto);
+        } catch (Exception e) {
+            throw new NameAlreadyTakenException(e.getMessage());
+        }
+        return new ResponseEntity<>(updateProduct, HttpStatus.OK);
     }
 
     @DeleteMapping(value = "/delete")
-    public ResponseEntity<?> deleteProduct(@RequestParam(name = "id") Long id) {
-        if (productService.findProductById(id).isPresent()) {
-            productService.deleteProduct(id);
-            return new ResponseEntity<>(HttpStatus.OK);
+    public ResponseEntity<?> deleteProduct(@RequestParam(name = "id") Long id) throws ProductNotFoundException {
+        if (productService.findProductById(id).isEmpty()) {
+            throw new ProductNotFoundException("Prodotto assente o id errato");
         }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        productService.deleteProduct(id);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

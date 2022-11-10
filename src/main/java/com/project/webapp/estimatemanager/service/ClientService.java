@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 //TODO: inserire tutti i try catch
@@ -33,14 +34,18 @@ public class ClientService {
                 .get();
     }
 
-    public ClientDto updateClient(ClientDto clientDto) {
-        Client client = clientRepo.findClientById(clientDto.getId()).get();
-        Client modifiedClient = this.saveChanges(clientDto, client);
-        clientRepo.save(modifiedClient);
-        return clientRepo.findClientById(modifiedClient.getId()).stream()
-                .map(source -> modelMapper.map(source, ClientDto.class))
-                .findFirst()
-                .get();
+    public ClientDto updateClient(ClientDto clientDto) throws Exception {
+        try {
+            Client client = clientRepo.findClientById(clientDto.getId()).get();
+            Client modifiedClient = this.saveChanges(clientDto, client);
+            clientRepo.save(modifiedClient);
+            return clientRepo.findClientById(modifiedClient.getId()).stream()
+                    .map(source -> modelMapper.map(source, ClientDto.class))
+                    .findFirst()
+                    .get();
+        } catch (NoSuchElementException e) {
+            throw new Exception("Dato non trovato");
+        }
     }
 
     public List<ClientDto> findAllClients() {
@@ -76,10 +81,10 @@ public class ClientService {
         return client;
     }
 
-    private Client saveChanges(ClientDto clientDto, Client client) {
+    private Client saveChanges(ClientDto clientDto, Client client) throws Exception {
         if (!clientDto.getEmail().equals(client.getEmail())) {
             if (clientRepo.findClientByEmail(clientDto.getEmail()).isPresent()) {
-                //throw new Exception("Email già esistente");
+                throw new Exception("Nuovo nome utente non disponibile, ritentare");
             }
             client.setEmail(clientDto.getEmail());
         }
