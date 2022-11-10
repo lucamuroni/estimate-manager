@@ -91,14 +91,21 @@ public class EstimateService {
     }
 
     private Estimate saveChanges(EstimateDto estimateDto, Estimate estimate) {
-        if (!estimateDto.getProduct().getId().equals(estimate.getProduct().getId()) ||
-                !estimateDto.getClient().getId().equals(estimate.getClient().getId()) ||
-                !estimateDto.getEmployee().getId().equals(estimate.getEmployee().getId())
+        if (!estimateDto.getPrice().equals(estimate.getPrice())) {
+            if (estimateDto.getEmployee().getId().equals(estimate.getEmployee().getId()) || estimate.getEmployee().getName().equals("default")) {
+                estimate.setPrice(estimateDto.getPrice());
+                estimate.setEmployee(employeeRepo.findEmployeeById(estimateDto.getEmployee().getId()).get());
+            } else {
+                //throw new Exception("Tentativo modifica informazioni di base del preventivo (impiegato");
+            }
+        } else if (estimateDto.getProduct().getId().equals(estimate.getProduct().getId()) &&
+                estimateDto.getClient().getId().equals(estimate.getClient().getId()) &&
+                estimateDto.getEmployee().getId().equals(estimate.getEmployee().getId())
         ) {
+            estimate.setOptions(this.modifyOptions(estimateDto.getOptions()));
+        } else {
             //throw new Exception("Tentativo modifica informazioni di base del preventivo (cliente, impiegato o prodotto");
         }
-        estimate.setOptions(this.modifyOptions(estimateDto.getOptions()));
-        estimate.setPrice(estimateDto.getPrice());
         return estimate;
     }
 
