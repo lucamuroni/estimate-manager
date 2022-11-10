@@ -68,17 +68,23 @@ public class EstimateService {
                 .findFirst();
     }
 
-    //public Optional<Estimate> findEstimateByClientId(Long client_id) {
-        //return estimateRepo.findEstimateByClient(client_id);
-    //}
+    public List<EstimateDto> findEstimatesByClientId(Long id) {
+        List<Estimate> estimates = estimateRepo.findEstimatesByClient(clientRepo.findClientById(id).get());
+        return estimates.stream()
+                .map(source -> modelMapper.map(source, EstimateDto.class))
+                .toList();
+    }
 
-    //public Optional<Estimate> findEstimateByEmployeeId(Long employee_id) {
-        //return estimateRepo.findEstimateByEmployee(employee_id);
-    //}
+    public List<EstimateDto> findEstimateByEmployeeId(Long id) {
+        List<Estimate> estimates = estimateRepo.findEstimatesByEmployee(employeeRepo.findEmployeeById(id).get());
+        return estimates.stream()
+                .map(source -> modelMapper.map(source, EstimateDto.class))
+                .toList();
+    }
 
-    //public void deleteEstimate(Long id) {
-        //estimateRepo.deleteEstimateById(id);
-    //}
+    public void deleteEstimate(Long id) {
+        estimateRepo.deleteEstimateById(id);
+    }
 
     private Estimate saveChanges(EstimateDto estimateDto) {
         Estimate estimate = new Estimate();

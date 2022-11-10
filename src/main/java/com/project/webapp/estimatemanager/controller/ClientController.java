@@ -52,12 +52,12 @@ public class ClientController {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    //@DeleteMapping(value = "/delete")
-    //public ResponseEntity<?> deleteClient(@RequestParam("email") String email) {
-        //if (clientService.findClientByEmail(email).isPresent()) {
-            //clientService.deleteClient(email);
-            //return new ResponseEntity<>(HttpStatus.OK);
-        //}
-        //return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-    //}
+    @DeleteMapping(value = "/delete")
+    public ResponseEntity<?> deleteClient(@RequestParam("id") Long id) {
+        if (clientService.findClientById(id).isPresent()) {
+            clientService.deleteClient(id);
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
 }

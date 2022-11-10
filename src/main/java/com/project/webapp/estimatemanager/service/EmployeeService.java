@@ -64,8 +64,8 @@ public class EmployeeService {
                 .findFirst();
     }
 
-    public void deleteEmployee(String email) {
-        employeeRepo.deleteEmployeeByEmail(email);
+    public void deleteEmployee(Long id) {
+        employeeRepo.deleteEmployeeById(id);
     }
 
     private Employee saveChanges(EmployeeDto employeeDto) {

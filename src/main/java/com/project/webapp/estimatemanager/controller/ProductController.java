@@ -52,12 +52,12 @@ public class ProductController {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    //@DeleteMapping(value = "/delete")
-    //public ResponseEntity<?> deleteProduct(@RequestParam(name = "id") Long id) {
-        //if (productService.findProductById(id).isPresent()) {
-            //productService.deleteProduct(id);
-            //return new ResponseEntity<>(HttpStatus.OK);
-        //}
-        //return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-    //}
+    @DeleteMapping(value = "/delete")
+    public ResponseEntity<?> deleteProduct(@RequestParam(name = "id") Long id) {
+        if (productService.findProductById(id).isPresent()) {
+            productService.deleteProduct(id);
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
 }

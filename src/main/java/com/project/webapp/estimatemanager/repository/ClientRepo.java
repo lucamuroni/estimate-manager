@@ -10,5 +10,5 @@ import java.util.Optional;
 public interface ClientRepo extends JpaRepository<Client, Long> {
     Optional<Client> findClientByEmail(String email);
     Optional<Client> findClientById(Long id);
-    void deleteClientByEmail(String email);
+    void deleteClientById(Long id);
 }

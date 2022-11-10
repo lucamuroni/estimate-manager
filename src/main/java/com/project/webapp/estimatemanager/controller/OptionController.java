@@ -52,12 +52,12 @@ public class OptionController {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    //@DeleteMapping(value = "/delete")
-    //public ResponseEntity<?> deleteOption(@RequestParam(name = "id") Long id) {
-        //if (optionsService.findOptionById(id).isPresent()) {
-            //optionsService.deleteOption(id);
-            //return new ResponseEntity<>(HttpStatus.OK);
-        //}
-        //return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-    //}
+    @DeleteMapping(value = "/delete")
+    public ResponseEntity<?> deleteOption(@RequestParam(name = "id") Long id) {
+        if (optionsService.findOptionById(id).isPresent()) {
+            optionsService.deleteOption(id);
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
 }

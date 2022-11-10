@@ -64,8 +64,8 @@ public class ClientService {
                 .findFirst();
     }
 
-    public void deleteClient(String email) {
-        clientRepo.deleteClientByEmail(email);
+    public void deleteClient(Long id) {
+        clientRepo.deleteClientById(id);
     }
 
     private Client saveChanges(ClientDto clientDto) {

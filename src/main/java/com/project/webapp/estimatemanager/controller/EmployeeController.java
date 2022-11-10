@@ -51,12 +51,12 @@ public class EmployeeController {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    //@DeleteMapping(value = "/delete")
-    //public ResponseEntity<?> deleteEmployee(@RequestParam("email") String email) {
-        //if (employeeService.findEmployeeByEmail(email).isPresent()) {
-            //employeeService.deleteEmployee(email);
-            //return new ResponseEntity<>(HttpStatus.OK);
-        //}
-        //return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-    //}
+    @DeleteMapping(value = "/delete")
+    public ResponseEntity<?> deleteEmployee(@RequestParam("id") Long id) {
+        if (employeeService.findEmployeeById(id).isPresent()) {
+            employeeService.deleteEmployee(id);
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
 }
