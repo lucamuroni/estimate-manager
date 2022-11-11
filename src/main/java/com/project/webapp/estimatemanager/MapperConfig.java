@@ -26,14 +26,5 @@ public class MapperConfig {
         }
     };
 
-    /*PropertyMap<Employee, EmployeeDto> employeeMapping = new PropertyMap<>() {
-        @Override
-        protected void configure() {
-            map().setEmail(source.getEmail());
-            map().setName(source.getName());
-            map().setPassword(source.getPassword());
-        }
-    };*/
-
     Converter<String, String> converter = mappingContext -> mappingContext.getSource() == null ? "" : mappingContext.getSource().trim();
 }
