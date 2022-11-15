@@ -45,6 +45,8 @@ public class ClientService {
                     .get();
         } catch (NoSuchElementException e) {
             throw new Exception("Dato non trovato");
+        }  catch (Exception e) {
+            throw new Exception("Eccezione non gestita");
         }
     }
 

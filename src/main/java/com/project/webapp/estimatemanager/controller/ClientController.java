@@ -10,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.NoSuchElementException;
+
 //TODO: inserire tutti i try catch
 @RestController
 @RequestMapping(value = "/client")
@@ -46,15 +48,17 @@ public class ClientController {
     }
 
     @PutMapping(value = "/update")
-    public ResponseEntity<ClientDto> updateClient(@RequestBody ClientDto clientDto) throws UserNotFoundException, NameAlreadyTakenException {
+    public ResponseEntity<ClientDto> updateClient(@RequestBody ClientDto clientDto) throws Exception {
         if (clientService.findClientById(clientDto.getId()).isEmpty()) {
             throw new UserNotFoundException("Cliente assente o id errato");
         }
         ClientDto updateClient;
         try {
             updateClient = clientService.updateClient(clientDto);
-        } catch (Exception e) {
+        } catch (NoSuchElementException e) {
             throw new NameAlreadyTakenException(e.getMessage());
+        } catch (Exception e) {
+            throw new Exception(e.getMessage());
         }
         return new ResponseEntity<>(updateClient, HttpStatus.OK);
     }
