@@ -1,6 +1,8 @@
 package com.project.webapp.estimatemanager.service;
 
 import com.project.webapp.estimatemanager.dtos.ClientDto;
+import com.project.webapp.estimatemanager.exception.GenericException;
+import com.project.webapp.estimatemanager.exception.NameAlreadyTakenException;
 import com.project.webapp.estimatemanager.models.Client;
 import com.project.webapp.estimatemanager.repository.ClientRepo;
 import org.modelmapper.ModelMapper;
@@ -9,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 
 //TODO: inserire tutti i try catch
@@ -25,13 +26,18 @@ public class ClientService {
         this.modelMapper = modelMapper;
     }
 
-    public ClientDto addClient(ClientDto clientDto) {
-        Client client = this.saveChanges(clientDto);
-        clientRepo.save(client);
-        return clientRepo.findClientByEmail(client.getEmail()).stream()
-                .map(source -> modelMapper.map(source, ClientDto.class))
-                .findFirst()
-                .get();
+    public ClientDto addClient(ClientDto clientDto) throws Exception {
+        try {
+            Client client = this.saveChanges(clientDto);
+            clientRepo.save(client);
+            return clientRepo.findClientByEmail(client.getEmail()).stream()
+                    .map(source -> modelMapper.map(source, ClientDto.class))
+                    .findFirst()
+                    .get();
+        } catch (Exception e) {
+            throw new Exception("Problema sconosciuto");
+        }
+
     }
 
     public ClientDto updateClient(ClientDto clientDto) throws Exception {
@@ -43,36 +49,58 @@ public class ClientService {
                     .map(source -> modelMapper.map(source, ClientDto.class))
                     .findFirst()
                     .get();
-        } catch (NoSuchElementException e) {
-            throw new Exception("Dato non trovato");
-        }  catch (Exception e) {
-            throw new Exception("Eccezione non gestita");
+        } catch (NameAlreadyTakenException e) {
+            throw new NameAlreadyTakenException(e.getMessage());
+        } catch (GenericException e) {
+            throw new GenericException(e.getMessage());
+        } catch (Exception e) {
+            throw new Exception("Problema sconosciuto");
         }
     }
 
-    public List<ClientDto> findAllClients() {
-        List<Client> clients = clientRepo.findAll();
-        return clients.stream()
-                .map(source -> modelMapper.map(source, ClientDto.class))
-                .toList();
+    public List<ClientDto> findAllClients() throws Exception {
+        try {
+            List<Client> clients = clientRepo.findAll();
+            return clients.stream()
+                    .map(source -> modelMapper.map(source, ClientDto.class))
+                    .toList();
+        } catch (Exception e) {
+            throw new Exception("Problema sconosciuto");
+        }
+
     }
 
-    public Optional<ClientDto> findClientByEmail(String email) {
-        Optional<Client> client = clientRepo.findClientByEmail(email);
-        return client.stream()
-                .map(source -> modelMapper.map(source, ClientDto.class))
-                .findFirst();
+    public Optional<ClientDto> findClientByEmail(String email) throws Exception {
+        try {
+            Optional<Client> client = clientRepo.findClientByEmail(email);
+            return client.stream()
+                    .map(source -> modelMapper.map(source, ClientDto.class))
+                    .findFirst();
+        } catch (Exception e) {
+            throw new Exception("Problema sconosciuto");
+        }
+
     }
 
-    public Optional<ClientDto> findClientById(Long id) {
-        Optional<Client> client = clientRepo.findClientById(id);
-        return client.stream()
-                .map(source -> modelMapper.map(source, ClientDto.class))
-                .findFirst();
+    public Optional<ClientDto> findClientById(Long id) throws Exception {
+        try {
+            Optional<Client> client = clientRepo.findClientById(id);
+            return client.stream()
+                    .map(source -> modelMapper.map(source, ClientDto.class))
+                    .findFirst();
+        } catch (Exception e) {
+            throw new Exception("Problema sconosciuto");
+        }
+
     }
 
-    public void deleteClient(Long id) {
-        clientRepo.deleteClientById(id);
+    public void deleteClient(Long id) throws Exception {
+        try {
+            clientRepo.deleteClientById(id);
+        } catch (Exception e) {
+            throw new Exception("Problema sconosciuto");
+        }
+
     }
 
     private Client saveChanges(ClientDto clientDto) {
@@ -83,15 +111,22 @@ public class ClientService {
         return client;
     }
 
-    private Client saveChanges(ClientDto clientDto, Client client) throws Exception {
-        if (!clientDto.getEmail().equals(client.getEmail())) {
-            if (clientRepo.findClientByEmail(clientDto.getEmail()).isPresent()) {
-                throw new Exception("Nuovo nome utente non disponibile, ritentare");
+    private Client saveChanges(ClientDto clientDto, Client client) throws NameAlreadyTakenException, GenericException {
+        try {
+            if (!clientDto.getEmail().equals(client.getEmail())) {
+                if (clientRepo.findClientByEmail(clientDto.getEmail()).isPresent()) {
+                    throw new NameAlreadyTakenException("Nuovo nome utente non disponibile, ritentare");
+                }
+                client.setEmail(clientDto.getEmail());
             }
-            client.setEmail(clientDto.getEmail());
+            client.setName(clientDto.getName());
+            client.setPassword(clientDto.getPassword());
+            return client;
+        } catch (NameAlreadyTakenException e) {
+            throw new NameAlreadyTakenException(e.getMessage());
+        } catch (Exception e) {
+            throw new GenericException("Problema sconosciuto");
         }
-        client.setName(clientDto.getName());
-        client.setPassword(clientDto.getPassword());
-        return client;
+
     }
 }

@@ -62,4 +62,12 @@ public class RestExceptionHandler {
         error.setMessaggio(e.getMessage());
         return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
     }
+
+    @ExceptionHandler(GenericException.class)
+    public ResponseEntity<ErrorResponse> genericException(Exception e) {
+        ErrorResponse error = new ErrorResponse();
+        error.setCodice(HttpStatus.BAD_REQUEST.value());
+        error.setMessaggio(e.getMessage());
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
 }
