@@ -2,6 +2,7 @@ package com.project.webapp.estimatemanager.service;
 
 import com.project.webapp.estimatemanager.dtos.EstimateDto;
 import com.project.webapp.estimatemanager.dtos.OptDto;
+import com.project.webapp.estimatemanager.exception.GenericException;
 import com.project.webapp.estimatemanager.models.Estimate;
 import com.project.webapp.estimatemanager.models.Opt;
 import com.project.webapp.estimatemanager.repository.*;
@@ -33,12 +34,18 @@ public class EstimateService {
     }
 
     public EstimateDto addEstimate(EstimateDto estimateDto) throws Exception {
-        Estimate estimate = this.saveChanges(estimateDto);
-        estimateRepo.save(estimate);
-        return estimateRepo.findEstimateById(estimate.getId()).stream()
-                .map(source -> modelMapper.map(source, EstimateDto.class))
-                .findFirst()
-                .get();
+        try {
+            Estimate estimate = this.saveChanges(estimateDto);
+            estimateRepo.save(estimate);
+            return estimateRepo.findEstimateById(estimate.getId()).stream()
+                    .map(source -> modelMapper.map(source, EstimateDto.class))
+                    .findFirst()
+                    .get();
+        } catch (GenericException e) {
+            throw new Exception(e.getMessage());
+        } catch (Exception e) {
+            throw new Exception("Problema sconosciuto");
+        }
     }
 
     public EstimateDto updateEstimate(EstimateDto estimateDto) throws Exception {
@@ -50,24 +57,31 @@ public class EstimateService {
                     .map(source -> modelMapper.map(source, EstimateDto.class))
                     .findFirst()
                     .get();
-        } catch (NoSuchElementException e) {
-            throw new Exception("Dato non trovato");
+        } catch (Exception e) {
+            throw new Exception(e.getMessage());
         }
-
     }
 
-    public List<EstimateDto> findAllEstimates() {
-        List<Estimate> estimates = estimateRepo.findAll();
-        return estimates.stream()
-                .map(source -> modelMapper.map(source, EstimateDto.class))
-                .toList();
+    public List<EstimateDto> findAllEstimates() throws Exception {
+        try {
+            List<Estimate> estimates = estimateRepo.findAll();
+            return estimates.stream()
+                    .map(source -> modelMapper.map(source, EstimateDto.class))
+                    .toList();
+        } catch (Exception e) {
+            throw new Exception("Problema sconosciuto");
+        }
     }
 
-    public Optional<EstimateDto> findEstimateById(Long id) {
-        Optional<Estimate> estimate = estimateRepo.findEstimateById(id);
-        return estimate.stream()
-                .map(source -> modelMapper.map(source, EstimateDto.class))
-                .findFirst();
+    public Optional<EstimateDto> findEstimateById(Long id) throws Exception {
+        try {
+            Optional<Estimate> estimate = estimateRepo.findEstimateById(id);
+            return estimate.stream()
+                    .map(source -> modelMapper.map(source, EstimateDto.class))
+                    .findFirst();
+        } catch (Exception e) {
+            throw new Exception("Problema sconosciuto");
+        }
     }
 
     public List<EstimateDto> findEstimatesByClientId(Long id) throws Exception {
@@ -77,9 +91,10 @@ public class EstimateService {
                     .map(source -> modelMapper.map(source, EstimateDto.class))
                     .toList();
         } catch (NoSuchElementException e) {
-            throw new Exception("Dato non trovato");
+            throw new NoSuchElementException("Dato non trovato");
+        } catch (Exception e) {
+            throw new Exception("Problema sconosciuto");
         }
-
     }
 
     public List<EstimateDto> findEstimateByEmployeeId(Long id) throws Exception {
@@ -89,13 +104,18 @@ public class EstimateService {
                     .map(source -> modelMapper.map(source, EstimateDto.class))
                     .toList();
         } catch (NoSuchElementException e) {
-            throw new Exception("Dato non trovato");
+            throw new NoSuchElementException("Dato non trovato");
+        } catch (Exception e) {
+            throw new Exception("Problema sconosciuto");
         }
-
     }
 
-    public void deleteEstimate(Long id) {
-        estimateRepo.deleteEstimateById(id);
+    public void deleteEstimate(Long id) throws Exception {
+        try {
+            estimateRepo.deleteEstimateById(id);
+        } catch (Exception e) {
+            throw new Exception("Problema sconosciuto");
+        }
     }
 
     private Estimate saveChanges(EstimateDto estimateDto) throws Exception {
@@ -107,10 +127,11 @@ public class EstimateService {
             estimate.setOptions(this.modifyOptions(estimateDto.getOptions()));
             estimate.setPrice(estimateDto.getPrice());
             return estimate;
-        } catch (NoSuchElementException e) {
-            throw new Exception("Qualcuno dei dati non è stato trovato");
+        } catch (GenericException e) {
+            throw new Exception(e.getMessage());
+        } catch (Exception e) {
+            throw new GenericException("Qualcosa è andato storto durante il salvataggio");
         }
-
     }
 
     private Estimate saveChanges(EstimateDto estimateDto, Estimate estimate) throws Exception {
@@ -120,7 +141,7 @@ public class EstimateService {
                     estimate.setPrice(estimateDto.getPrice());
                     estimate.setEmployee(employeeRepo.findEmployeeById(estimateDto.getEmployee().getId()).get());
                 } else {
-                    throw new Exception("Tentativo modifica informazioni di base del preventivo (impiegato)");
+                    throw new GenericException("Tentativo modifica informazioni di base del preventivo (impiegato)");
                 }
             } else if (estimateDto.getProduct().getId().equals(estimate.getProduct().getId()) &&
                     estimateDto.getClient().getId().equals(estimate.getClient().getId()) &&
@@ -128,24 +149,30 @@ public class EstimateService {
             ) {
                 estimate.setOptions(this.modifyOptions(estimateDto.getOptions()));
             } else {
-                throw new Exception("Tentativo modifica informazioni di base del preventivo (cliente)");
+                throw new GenericException("Tentativo modifica informazioni di base del preventivo (cliente)");
             }
             return estimate;
-        } catch (NoSuchElementException e) {
-            throw new Exception("Qualcuno dei dati non è stato trovato");
+        } catch (GenericException e) {
+            throw new Exception(e.getMessage());
+        } catch (Exception e) {
+            throw new Exception("Problema sconosciuto");
         }
-
     }
 
-    private Set<Opt> modifyOptions(Set<OptDto> optionDto) throws Exception {
+    private Set<Opt> modifyOptions(Set<OptDto> optionDto) throws GenericException {
         try {
             Set<Opt> opts = new HashSet<>();
             for (OptDto opt: optionDto) {
-                opts.add(optionRepo.findOptById(opt.getId()).get());
+                if (optionRepo.findOptById(opt.getId()).isPresent())
+                    opts.add(optionRepo.findOptById(opt.getId()).get());
+                else
+                    throw new GenericException("Opzione non trovata");
             }
             return opts;
-        } catch (NoSuchElementException e) {
-            throw new Exception("Un'opzione non è stata trovata");
+        } catch (GenericException e) {
+            throw new GenericException(e.getMessage());
+        } catch (Exception e) {
+            throw new GenericException("Problema sconosciuto");
         }
     }
 }

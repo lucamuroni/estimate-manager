@@ -11,9 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 
-//TODO: inserire tutti i try catch
 @RestController
 @RequestMapping(value = "/client")
 //@CrossOrigin(origins = "*")
@@ -33,7 +31,6 @@ public class ClientController {
         } catch (Exception e) {
             throw new GenericException(e.getMessage());
         }
-
     }
 
     @GetMapping(value = "/find")
@@ -49,7 +46,6 @@ public class ClientController {
         } catch (Exception e) {
             throw new GenericException(e.getMessage());
         }
-
     }
 
     @PostMapping(value = "/add")
@@ -64,7 +60,6 @@ public class ClientController {
         } catch (Exception e) {
             throw new GenericException(e.getMessage());
         }
-
     }
 
     @PutMapping(value = "/update")
@@ -80,8 +75,6 @@ public class ClientController {
             throw new UserNotFoundException(e.getMessage());
         } catch (NameAlreadyTakenException e) {
             throw new NameAlreadyTakenException(e.getMessage());
-        } catch (GenericException e) {
-            throw new GenericException(e.getMessage());
         } catch (Exception e) {
             throw new GenericException(e.getMessage());
         }

@@ -13,7 +13,6 @@ import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 
-//TODO: inserire tutti i try catch
 @Service
 @Transactional
 public class ClientService {
@@ -37,7 +36,6 @@ public class ClientService {
         } catch (Exception e) {
             throw new Exception("Problema sconosciuto");
         }
-
     }
 
     public ClientDto updateClient(ClientDto clientDto) throws Exception {
@@ -67,7 +65,6 @@ public class ClientService {
         } catch (Exception e) {
             throw new Exception("Problema sconosciuto");
         }
-
     }
 
     public Optional<ClientDto> findClientByEmail(String email) throws Exception {
@@ -79,7 +76,6 @@ public class ClientService {
         } catch (Exception e) {
             throw new Exception("Problema sconosciuto");
         }
-
     }
 
     public Optional<ClientDto> findClientById(Long id) throws Exception {
@@ -91,7 +87,6 @@ public class ClientService {
         } catch (Exception e) {
             throw new Exception("Problema sconosciuto");
         }
-
     }
 
     public void deleteClient(Long id) throws Exception {
@@ -100,7 +95,6 @@ public class ClientService {
         } catch (Exception e) {
             throw new Exception("Problema sconosciuto");
         }
-
     }
 
     private Client saveChanges(ClientDto clientDto) {
@@ -127,6 +121,5 @@ public class ClientService {
         } catch (Exception e) {
             throw new GenericException("Problema sconosciuto");
         }
-
     }
 }
