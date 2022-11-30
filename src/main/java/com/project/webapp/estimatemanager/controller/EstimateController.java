@@ -89,10 +89,12 @@ public class EstimateController {
     @GetMapping(value = "/unmanaged")
     public ResponseEntity<List<EstimateDto>> getEstimatesUnmanaged() throws DataNotFoundException, GenericException {
         try {
-            List<EstimateDto> estimates = estimateService.findEstimateByEmployeeId(employeeService.findEmployeeByEmail("default").get().getId());
+            List<EstimateDto> estimates = estimateService.findEstimateByEmployeeId(employeeService.findEmployeeByEmail("default").orElseThrow().getId());
             if (estimates.isEmpty())
                 throw new DataNotFoundException("Nessun preventivo risulta ancora dover essere gestito da un impiegato");
             return new ResponseEntity<>(estimates, HttpStatus.OK);
+        } catch (NoSuchElementException e) {
+            throw new NoSuchElementException("Elemento non trovato");
         } catch (DataNotFoundException e) {
             throw new DataNotFoundException("Dato non trovato");
         } catch (Exception e) {
@@ -106,6 +108,8 @@ public class EstimateController {
             EstimateDto newEstimate;
             newEstimate = estimateService.addEstimate(estimateDto);
             return new ResponseEntity<>(newEstimate, HttpStatus.CREATED);
+        } catch (NoSuchElementException e) {
+            throw new NoSuchElementException(e.getMessage());
         } catch (Exception e) {
             throw new GenericException(e.getMessage());
         }
@@ -122,6 +126,8 @@ public class EstimateController {
             return new ResponseEntity<>(updateEstimate, HttpStatus.OK);
         } catch (EstimateNotFoundException e) {
             throw new EstimateNotFoundException(e.getMessage());
+        } catch (NoSuchElementException e) {
+            throw new NoSuchElementException(e.getMessage());
         } catch (Exception e) {
             throw new GenericException(e.getMessage());
         }

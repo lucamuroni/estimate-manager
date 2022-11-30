@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping(value = "/client")
@@ -57,6 +58,8 @@ public class ClientController {
             return new ResponseEntity<>(newClient, HttpStatus.CREATED);
         } catch (NameAlreadyTakenException e) {
             throw new NameAlreadyTakenException(e.getMessage());
+        } catch (NoSuchElementException e) {
+            throw new NoSuchElementException(e.getMessage());
         } catch (Exception e) {
             throw new GenericException(e.getMessage());
         }
@@ -75,6 +78,8 @@ public class ClientController {
             throw new UserNotFoundException(e.getMessage());
         } catch (NameAlreadyTakenException e) {
             throw new NameAlreadyTakenException(e.getMessage());
+        } catch (NoSuchElementException e) {
+            throw new NoSuchElementException(e.getMessage());
         } catch (Exception e) {
             throw new GenericException(e.getMessage());
         }

@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
@@ -32,7 +33,11 @@ public class EmployeeService {
             return employeeRepo.findEmployeeByEmail(employee.getEmail()).stream()
                     .map(source -> modelMapper.map(source, EmployeeDto.class))
                     .findFirst()
-                    .get();
+                    .orElseThrow();
+        } catch (NoSuchElementException e) {
+            throw new NoSuchElementException("Elemento non trovato");
+        } catch (NullPointerException e) {
+            throw new NoSuchElementException("Nessun elemento nella lista");
         } catch (Exception e) {
             throw new Exception("Problema sconosciuto");
         }
@@ -40,15 +45,19 @@ public class EmployeeService {
 
     public EmployeeDto updateEmployee(EmployeeDto employeeDto) throws Exception {
         try {
-            Employee employee = employeeRepo.findEmployeeById(employeeDto.getId()).get();
+            Employee employee = employeeRepo.findEmployeeById(employeeDto.getId()).orElseThrow();
             Employee modifiedEmployee = this.saveChanges(employeeDto, employee);
             employeeRepo.save(modifiedEmployee);
             return employeeRepo.findEmployeeById(modifiedEmployee.getId()).stream()
                     .map(source -> modelMapper.map(source, EmployeeDto.class))
                     .findFirst()
-                    .get();
+                    .orElseThrow();
         } catch (NameAlreadyTakenException e) {
             throw new NameAlreadyTakenException(e.getMessage());
+        } catch (NoSuchElementException e) {
+            throw new NoSuchElementException("Elemento non trovato");
+        } catch (NullPointerException e) {
+            throw new NoSuchElementException("Nessun elemento nella lista");
         } catch (GenericException e) {
             throw new GenericException(e.getMessage());
         } catch (Exception e) {
@@ -73,6 +82,8 @@ public class EmployeeService {
             return employee.stream()
                     .map(source -> modelMapper.map(source, EmployeeDto.class))
                     .findFirst();
+        } catch (NullPointerException e) {
+            throw new Exception("Nessun elemento nella lista");
         } catch (Exception e) {
             throw new Exception("Problema sconosciuto");
         }
@@ -84,6 +95,8 @@ public class EmployeeService {
             return employee.stream()
                     .map(source -> modelMapper.map(source, EmployeeDto.class))
                     .findFirst();
+        } catch (NullPointerException e) {
+            throw new Exception("Nessun elemento nella lista");
         } catch (Exception e) {
             throw new Exception("Problema sconosciuto");
         }

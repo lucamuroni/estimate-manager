@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
@@ -32,7 +33,11 @@ public class ClientService {
             return clientRepo.findClientByEmail(client.getEmail()).stream()
                     .map(source -> modelMapper.map(source, ClientDto.class))
                     .findFirst()
-                    .get();
+                    .orElseThrow();
+        } catch (NoSuchElementException e) {
+            throw new NoSuchElementException("Elemento non trovato");
+        } catch (NullPointerException e) {
+            throw new NoSuchElementException("Nessun elemento nella lista");
         } catch (Exception e) {
             throw new Exception("Problema sconosciuto");
         }
@@ -40,15 +45,19 @@ public class ClientService {
 
     public ClientDto updateClient(ClientDto clientDto) throws Exception {
         try {
-            Client client = clientRepo.findClientById(clientDto.getId()).get();
+            Client client = clientRepo.findClientById(clientDto.getId()).orElseThrow();
             Client modifiedClient = this.saveChanges(clientDto, client);
             clientRepo.save(modifiedClient);
             return clientRepo.findClientById(modifiedClient.getId()).stream()
                     .map(source -> modelMapper.map(source, ClientDto.class))
                     .findFirst()
-                    .get();
+                    .orElseThrow();
         } catch (NameAlreadyTakenException e) {
             throw new NameAlreadyTakenException(e.getMessage());
+        } catch (NoSuchElementException e) {
+            throw new NoSuchElementException("Elemento non trovato");
+        } catch (NullPointerException e) {
+            throw new NoSuchElementException("Nessun elemento nella lista");
         } catch (GenericException e) {
             throw new GenericException(e.getMessage());
         } catch (Exception e) {
@@ -73,6 +82,8 @@ public class ClientService {
             return client.stream()
                     .map(source -> modelMapper.map(source, ClientDto.class))
                     .findFirst();
+        } catch (NullPointerException e) {
+            throw new Exception("Nessun elemento nella lista");
         } catch (Exception e) {
             throw new Exception("Problema sconosciuto");
         }
@@ -84,6 +95,8 @@ public class ClientService {
             return client.stream()
                     .map(source -> modelMapper.map(source, ClientDto.class))
                     .findFirst();
+        } catch (NullPointerException e) {
+            throw new Exception("Nessun elemento nella lista");
         } catch (Exception e) {
             throw new Exception("Problema sconosciuto");
         }

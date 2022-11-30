@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping(value = "/employee")
@@ -56,6 +57,8 @@ public class EmployeeController {
             return new ResponseEntity<>(newEmployee, HttpStatus.CREATED);
         } catch (NameAlreadyTakenException e) {
             throw new NameAlreadyTakenException(e.getMessage());
+        } catch (NoSuchElementException e) {
+            throw new NoSuchElementException(e.getMessage());
         } catch (Exception e) {
             throw new GenericException(e.getMessage());
         }
@@ -74,6 +77,8 @@ public class EmployeeController {
             throw new UserNotFoundException(e.getMessage());
         } catch (NameAlreadyTakenException e) {
             throw new NameAlreadyTakenException(e.getMessage());
+        } catch (NoSuchElementException e) {
+            throw new NoSuchElementException(e.getMessage());
         } catch (Exception e) {
             throw new GenericException(e.getMessage());
         }

@@ -40,7 +40,11 @@ public class EstimateService {
             return estimateRepo.findEstimateById(estimate.getId()).stream()
                     .map(source -> modelMapper.map(source, EstimateDto.class))
                     .findFirst()
-                    .get();
+                    .orElseThrow();
+        } catch (NoSuchElementException e) {
+            throw new NoSuchElementException("Elemento non trovato");
+        } catch (NullPointerException e) {
+            throw new NoSuchElementException("Nessun elemento nella lista");
         } catch (GenericException e) {
             throw new Exception(e.getMessage());
         } catch (Exception e) {
@@ -50,13 +54,17 @@ public class EstimateService {
 
     public EstimateDto updateEstimate(EstimateDto estimateDto) throws Exception {
         try {
-            Estimate estimate = estimateRepo.findEstimateById(estimateDto.getId()).get();
+            Estimate estimate = estimateRepo.findEstimateById(estimateDto.getId()).orElseThrow();
             Estimate modifiedEstimate = this.saveChanges(estimateDto, estimate);
             estimateRepo.save(modifiedEstimate);
             return estimateRepo.findEstimateById(modifiedEstimate.getId()).stream()
                     .map(source -> modelMapper.map(source, EstimateDto.class))
                     .findFirst()
-                    .get();
+                    .orElseThrow();
+        } catch (NoSuchElementException e) {
+            throw new NoSuchElementException("Elemento non trovato");
+        } catch (NullPointerException e) {
+            throw new NoSuchElementException("Nessun elemento nella lista");
         } catch (Exception e) {
             throw new Exception(e.getMessage());
         }
@@ -79,6 +87,8 @@ public class EstimateService {
             return estimate.stream()
                     .map(source -> modelMapper.map(source, EstimateDto.class))
                     .findFirst();
+        } catch (NullPointerException e) {
+            throw new Exception("Nessun elemento nella lista");
         } catch (Exception e) {
             throw new Exception("Problema sconosciuto");
         }
@@ -86,12 +96,12 @@ public class EstimateService {
 
     public List<EstimateDto> findEstimatesByClientId(Long id) throws Exception {
         try {
-            List<Estimate> estimates = estimateRepo.findEstimatesByClient(clientRepo.findClientById(id).get());
+            List<Estimate> estimates = estimateRepo.findEstimatesByClient(clientRepo.findClientById(id).orElseThrow());
             return estimates.stream()
                     .map(source -> modelMapper.map(source, EstimateDto.class))
                     .toList();
         } catch (NoSuchElementException e) {
-            throw new NoSuchElementException("Dato non trovato");
+            throw new NoSuchElementException("Elemento non trovato");
         } catch (Exception e) {
             throw new Exception("Problema sconosciuto");
         }
@@ -99,12 +109,12 @@ public class EstimateService {
 
     public List<EstimateDto> findEstimateByEmployeeId(Long id) throws Exception {
         try {
-            List<Estimate> estimates = estimateRepo.findEstimatesByEmployee(employeeRepo.findEmployeeById(id).get());
+            List<Estimate> estimates = estimateRepo.findEstimatesByEmployee(employeeRepo.findEmployeeById(id).orElseThrow());
             return estimates.stream()
                     .map(source -> modelMapper.map(source, EstimateDto.class))
                     .toList();
         } catch (NoSuchElementException e) {
-            throw new NoSuchElementException("Dato non trovato");
+            throw new NoSuchElementException("Elemento non trovato");
         } catch (Exception e) {
             throw new Exception("Problema sconosciuto");
         }
@@ -121,12 +131,14 @@ public class EstimateService {
     private Estimate saveChanges(EstimateDto estimateDto) throws Exception {
         try {
             Estimate estimate = new Estimate();
-            estimate.setClient(clientRepo.findClientById(estimateDto.getClient().getId()).get());
-            estimate.setEmployee(employeeRepo.findEmployeeByEmail("default").get());
-            estimate.setProduct(productRepo.findProductById(estimateDto.getProduct().getId()).get());
+            estimate.setClient(clientRepo.findClientById(estimateDto.getClient().getId()).orElseThrow());
+            estimate.setEmployee(employeeRepo.findEmployeeByEmail("default").orElseThrow());
+            estimate.setProduct(productRepo.findProductById(estimateDto.getProduct().getId()).orElseThrow());
             estimate.setOptions(this.modifyOptions(estimateDto.getOptions()));
             estimate.setPrice(estimateDto.getPrice());
             return estimate;
+        } catch (NoSuchElementException e) {
+            throw new NoSuchElementException();
         } catch (GenericException e) {
             throw new Exception(e.getMessage());
         } catch (Exception e) {
@@ -139,7 +151,7 @@ public class EstimateService {
             if (!estimateDto.getPrice().equals(estimate.getPrice())) {
                 if (estimateDto.getEmployee().getId().equals(estimate.getEmployee().getId()) || estimate.getEmployee().getName().equals("default")) {
                     estimate.setPrice(estimateDto.getPrice());
-                    estimate.setEmployee(employeeRepo.findEmployeeById(estimateDto.getEmployee().getId()).get());
+                    estimate.setEmployee(employeeRepo.findEmployeeById(estimateDto.getEmployee().getId()).orElseThrow());
                 } else {
                     throw new GenericException("Tentativo modifica informazioni di base del preventivo (impiegato)");
                 }
@@ -152,6 +164,8 @@ public class EstimateService {
                 throw new GenericException("Tentativo modifica informazioni di base del preventivo (cliente)");
             }
             return estimate;
+        } catch (NoSuchElementException e) {
+            throw new NoSuchElementException();
         } catch (GenericException e) {
             throw new Exception(e.getMessage());
         } catch (Exception e) {

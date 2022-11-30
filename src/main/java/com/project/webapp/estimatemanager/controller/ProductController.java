@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping(value = "/product")
@@ -57,6 +58,8 @@ public class ProductController {
             return new ResponseEntity<>(newProduct, HttpStatus.CREATED);
         } catch (NameAlreadyTakenException e) {
             throw new NameAlreadyTakenException(e.getMessage());
+        } catch (NoSuchElementException e) {
+            throw new NoSuchElementException(e.getMessage());
         } catch (Exception e) {
             throw new GenericException(e.getMessage());
         }
@@ -75,6 +78,8 @@ public class ProductController {
             throw new ProductNotFoundException(e.getMessage());
         } catch (NameAlreadyTakenException e) {
             throw new NameAlreadyTakenException(e.getMessage());
+        } catch (NoSuchElementException e) {
+            throw new NoSuchElementException(e.getMessage());
         } catch (Exception e) {
             throw new GenericException(e.getMessage());
         }

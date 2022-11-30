@@ -5,6 +5,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import java.util.NoSuchElementException;
+
 @ControllerAdvice
 public class RestExceptionHandler {
     @ExceptionHandler(UserNotFoundException.class)
@@ -69,5 +71,13 @@ public class RestExceptionHandler {
         error.setCodice(HttpStatus.BAD_REQUEST.value());
         error.setMessaggio(e.getMessage());
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(NoSuchElementException.class)
+    public ResponseEntity<ErrorResponse> noSuchElementException(Exception e) {
+        ErrorResponse error = new ErrorResponse();
+        error.setCodice(HttpStatus.NO_CONTENT.value());
+        error.setMessaggio(e.getMessage());
+        return new ResponseEntity<>(error, HttpStatus.NO_CONTENT);
     }
 }

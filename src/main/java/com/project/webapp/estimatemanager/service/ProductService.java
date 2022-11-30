@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
@@ -34,7 +35,11 @@ public class ProductService {
             return productRepo.findProductById(product.getId()).stream()
                     .map(source -> modelMapper.map(source, ProductDto.class))
                     .findFirst()
-                    .get();
+                    .orElseThrow();
+        } catch (NoSuchElementException e) {
+            throw new NoSuchElementException("Elemento non trovato");
+        } catch (NullPointerException e) {
+            throw new NoSuchElementException("Nessun elemento nella lista");
         } catch (Exception e) {
             throw new Exception("Problema sconosciuto");
         }
@@ -42,15 +47,19 @@ public class ProductService {
 
     public ProductDto updateProduct(ProductDto productDto) throws Exception {
         try {
-            Product product = productRepo.findProductById(productDto.getId()).get();
+            Product product = productRepo.findProductById(productDto.getId()).orElseThrow();
             Product modifiedProduct = this.saveChanges(productDto, product);
             productRepo.save(modifiedProduct);
             return productRepo.findProductById(modifiedProduct.getId()).stream()
                     .map(source -> modelMapper.map(source, ProductDto.class))
                     .findFirst()
-                    .get();
+                    .orElseThrow();
         } catch (NameAlreadyTakenException e) {
             throw new NameAlreadyTakenException(e.getMessage());
+        } catch (NoSuchElementException e) {
+            throw new NoSuchElementException("Elemento non trovato");
+        } catch (NullPointerException e) {
+            throw new NoSuchElementException("Nessun elemento nella lista");
         } catch (GenericException e) {
             throw new GenericException(e.getMessage());
         } catch (Exception e) {
@@ -65,7 +74,7 @@ public class ProductService {
                     .map(source -> modelMapper.map(source, ProductDto.class))
                     .toList();
         } catch (Exception e) {
-            throw new Exception(e.getMessage());
+            throw new Exception("Problema sconosciuto");
         }
     }
 
@@ -75,6 +84,8 @@ public class ProductService {
             return product.stream()
                     .map(source -> modelMapper.map(source, ProductDto.class))
                     .findFirst();
+        } catch (NullPointerException e) {
+            throw new Exception("Nessun elemento nella lista");
         } catch (Exception e) {
             throw new Exception("Problema sconosciuto");
         }
@@ -86,6 +97,8 @@ public class ProductService {
             return product.stream()
                     .map(source -> modelMapper.map(source, ProductDto.class))
                     .findFirst();
+        } catch (NullPointerException e) {
+            throw new Exception("Nessun elemento nella lista");
         } catch (Exception e) {
             throw new Exception("Problema sconosciuto");
         }

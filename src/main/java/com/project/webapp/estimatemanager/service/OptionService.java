@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
@@ -34,7 +35,11 @@ public class OptionService {
             return optionRepo.findOptById(option.getId()).stream()
                     .map(source -> modelMapper.map(source, OptDto.class))
                     .findFirst()
-                    .get();
+                    .orElseThrow();
+        } catch (NoSuchElementException e) {
+            throw new NoSuchElementException("Elemento non trovato");
+        } catch (NullPointerException e) {
+            throw new NoSuchElementException("Nessun elemento nella lista");
         } catch (Exception e) {
             throw new Exception("Problema sconosciuto");
         }
@@ -42,15 +47,19 @@ public class OptionService {
 
     public OptDto updateOption(OptDto optionDto) throws Exception {
         try {
-            Opt option = optionRepo.findOptById(optionDto.getId()).get();
+            Opt option = optionRepo.findOptById(optionDto.getId()).orElseThrow();
             Opt modifiedOption = this.saveChanges(optionDto, option);
             optionRepo.save(modifiedOption);
             return optionRepo.findOptById(modifiedOption.getId()).stream()
                     .map(source -> modelMapper.map(source, OptDto.class))
                     .findFirst()
-                    .get();
+                    .orElseThrow();
         } catch (NameAlreadyTakenException e) {
             throw new NameAlreadyTakenException(e.getMessage());
+        } catch (NoSuchElementException e) {
+            throw new NoSuchElementException("Elemento non trovato");
+        } catch (NullPointerException e) {
+            throw new NoSuchElementException("Nessun elemento nella lista");
         } catch (GenericException e) {
             throw new GenericException(e.getMessage());
         } catch (Exception e) {
@@ -75,6 +84,8 @@ public class OptionService {
             return option.stream()
                     .map(source -> modelMapper.map(source, OptDto.class))
                     .findFirst();
+        } catch (NullPointerException e) {
+            throw new Exception("Nessun elemento nella lista");
         } catch (Exception e) {
             throw new Exception("Problema sconosciuto");
         }
@@ -86,6 +97,8 @@ public class OptionService {
             return option.stream()
                     .map(source -> modelMapper.map(source, OptDto.class))
                     .findFirst();
+        } catch (NullPointerException e) {
+            throw new Exception("Nessun elemento nella lista");
         } catch (Exception e) {
             throw new Exception("Problema sconosciuto");
         }
