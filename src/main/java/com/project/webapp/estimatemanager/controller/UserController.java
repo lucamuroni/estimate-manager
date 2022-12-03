@@ -2,7 +2,6 @@ package com.project.webapp.estimatemanager.controller;
 
 import com.project.webapp.estimatemanager.dtos.UserDto;
 import com.project.webapp.estimatemanager.exception.GenericException;
-import com.project.webapp.estimatemanager.exception.UserNotFoundException;
 import com.project.webapp.estimatemanager.exception.NameAlreadyTakenException;
 import com.project.webapp.estimatemanager.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +46,7 @@ public class UserController {
     }
 
     @PostMapping(value = "/add")
-    public ResponseEntity<UserDto> addClient(@RequestBody UserDto user) throws GenericException, NameAlreadyTakenException {
+    public ResponseEntity<UserDto> addClient(@RequestBody UserDto user) throws GenericException, NoSuchElementException, NameAlreadyTakenException {
         try {
             UserDto newClient = userService.addUser(user);
             return new ResponseEntity<>(newClient, HttpStatus.CREATED);

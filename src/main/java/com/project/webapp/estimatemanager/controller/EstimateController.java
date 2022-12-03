@@ -73,7 +73,7 @@ public class EstimateController {
     }
 
     @PostMapping(value = "/add")
-    public ResponseEntity<EstimateDto> addEstimate(@RequestBody EstimateDto estimateDto) throws GenericException {
+    public ResponseEntity<EstimateDto> addEstimate(@RequestBody EstimateDto estimateDto) throws NoSuchElementException, GenericException {
         try {
             EstimateDto newEstimate;
             newEstimate = estimateService.addEstimate(estimateDto);

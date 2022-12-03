@@ -5,6 +5,8 @@ import com.project.webapp.estimatemanager.dtos.OptDto;
 import com.project.webapp.estimatemanager.exception.GenericException;
 import com.project.webapp.estimatemanager.models.Estimate;
 import com.project.webapp.estimatemanager.models.Opt;
+import com.project.webapp.estimatemanager.models.Role;
+import com.project.webapp.estimatemanager.models.UserEntity;
 import com.project.webapp.estimatemanager.repository.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,27 +19,29 @@ import java.util.*;
 @Transactional
 public class EstimateService {
     private final EstimateRepo estimateRepo;
-    private final ClientRepo clientRepo;
-    private final EmployeeRepo employeeRepo;
-    private final ProductRepo productRepo;
+    private final UserRepo userRepo;
     private final OptionRepo optionRepo;
+    private final ProductRepo productRepo;
     private final ModelMapper modelMapper;
+    private final Role role;
 
     @Autowired
-    public EstimateService(EstimateRepo estimateRepo, ClientRepo clientRepo, EmployeeRepo employeeRepo, ProductRepo productRepo, OptionRepo optionRepo, ModelMapper modelMapper) {
+    public EstimateService(EstimateRepo estimateRepo, UserRepo userRepo, OptionRepo optionRepo, ProductRepo productRepo, ModelMapper modelMapper) {
         this.estimateRepo = estimateRepo;
-        this.clientRepo = clientRepo;
-        this.employeeRepo = employeeRepo;
-        this.productRepo = productRepo;
+        this.userRepo = userRepo;
         this.optionRepo = optionRepo;
+        this.productRepo = productRepo;
         this.modelMapper = modelMapper;
+        role = new Role();
+        role.setName("client");
     }
 
     public EstimateDto addEstimate(EstimateDto estimateDto) throws Exception {
         try {
             Estimate estimate = this.saveChanges(estimateDto);
             estimateRepo.save(estimate);
-            return estimateRepo.findEstimateById(estimate.getId()).stream()
+            return estimateRepo
+                    .findEstimateById(estimate.getId()).stream()
                     .map(source -> modelMapper.map(source, EstimateDto.class))
                     .findFirst()
                     .orElseThrow();
@@ -81,40 +85,44 @@ public class EstimateService {
         }
     }
 
-    public Optional<EstimateDto> findEstimateById(Long id) throws Exception {
+    public EstimateDto findEstimateById(Long id) throws Exception {
         try {
             Optional<Estimate> estimate = estimateRepo.findEstimateById(id);
-            return estimate.stream()
-                    .map(source -> modelMapper.map(source, EstimateDto.class))
-                    .findFirst();
-        } catch (NullPointerException e) {
-            throw new Exception("Nessun elemento nella lista");
+            if (estimate.isPresent())
+                return estimate
+                        .stream()
+                        .map(source -> modelMapper.map(source, EstimateDto.class))
+                        .findFirst()
+                        .get();
+            else
+                throw new NoSuchElementException("Nessun elemento trovato");
+        } catch (NoSuchElementException e) {
+            throw new NoSuchElementException(e.getMessage());
         } catch (Exception e) {
             throw new Exception("Problema sconosciuto");
         }
     }
 
-    public List<EstimateDto> findEstimatesByClientId(Long id) throws Exception {
+    public List<EstimateDto> findEstimatesByUserId(Long id) throws Exception {
         try {
-            List<Estimate> estimates = estimateRepo.findEstimatesByClient(clientRepo.findClientById(id).orElseThrow());
-            return estimates.stream()
-                    .map(source -> modelMapper.map(source, EstimateDto.class))
-                    .toList();
+            if (userRepo.findUserEntityById(id).isPresent()) {
+                UserEntity user = userRepo.findUserEntityById(id).get();
+                if (user.getRoles().stream().map(Role::getName).toList().contains(role.getName()))
+                    return estimateRepo
+                            .findEstimatesByClient(user)
+                            .stream()
+                            .map(source -> modelMapper.map(source, EstimateDto.class))
+                            .toList();
+                else
+                    return estimateRepo
+                            .findEstimatesByEmployee(user)
+                            .stream()
+                            .map(source -> modelMapper.map(source, EstimateDto.class))
+                            .toList();
+            } else
+                throw new NoSuchElementException("Nessun utente trovato");
         } catch (NoSuchElementException e) {
-            throw new NoSuchElementException("Elemento non trovato");
-        } catch (Exception e) {
-            throw new Exception("Problema sconosciuto");
-        }
-    }
-
-    public List<EstimateDto> findEstimateByEmployeeId(Long id) throws Exception {
-        try {
-            List<Estimate> estimates = estimateRepo.findEstimatesByEmployee(employeeRepo.findEmployeeById(id).orElseThrow());
-            return estimates.stream()
-                    .map(source -> modelMapper.map(source, EstimateDto.class))
-                    .toList();
-        } catch (NoSuchElementException e) {
-            throw new NoSuchElementException("Elemento non trovato");
+            throw new NoSuchElementException(e.getMessage());
         } catch (Exception e) {
             throw new Exception("Problema sconosciuto");
         }
@@ -122,7 +130,12 @@ public class EstimateService {
 
     public void deleteEstimate(Long id) throws Exception {
         try {
-            estimateRepo.deleteEstimateById(id);
+            if (estimateRepo.findEstimateById(id).isPresent())
+                estimateRepo.deleteEstimateById(id);
+            else
+                throw new NoSuchElementException("Nessun elemento trovato");
+        } catch (NoSuchElementException e) {
+            throw new NoSuchElementException("Elemento non trovato");
         } catch (Exception e) {
             throw new Exception("Problema sconosciuto");
         }
@@ -131,8 +144,8 @@ public class EstimateService {
     private Estimate saveChanges(EstimateDto estimateDto) throws Exception {
         try {
             Estimate estimate = new Estimate();
-            estimate.setClient(clientRepo.findClientById(estimateDto.getClient().getId()).orElseThrow());
-            estimate.setEmployee(employeeRepo.findEmployeeByEmail("default").orElseThrow());
+            estimate.setClient(userRepo.findUserEntityById(estimateDto.getClient().getId()).orElseThrow());
+            estimate.setEmployee(userRepo.findUserEntityByEmail("default").orElseThrow());
             estimate.setProduct(productRepo.findProductById(estimateDto.getProduct().getId()).orElseThrow());
             estimate.setOptions(this.modifyOptions(estimateDto.getOptions()));
             estimate.setPrice(estimateDto.getPrice());
@@ -151,7 +164,7 @@ public class EstimateService {
             if (!estimateDto.getPrice().equals(estimate.getPrice())) {
                 if (estimateDto.getEmployee().getId().equals(estimate.getEmployee().getId()) || estimate.getEmployee().getName().equals("default")) {
                     estimate.setPrice(estimateDto.getPrice());
-                    estimate.setEmployee(employeeRepo.findEmployeeById(estimateDto.getEmployee().getId()).orElseThrow());
+                    estimate.setEmployee(userRepo.findUserEntityById(estimateDto.getEmployee().getId()).orElseThrow());
                 } else {
                     throw new GenericException("Tentativo modifica informazioni di base del preventivo (impiegato)");
                 }
