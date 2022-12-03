@@ -1,7 +1,9 @@
 package com.project.webapp.estimatemanager.models;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -13,7 +15,6 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
 @Table(name = "options")
 public class Opt implements Serializable {
     @Id
@@ -25,7 +26,5 @@ public class Opt implements Serializable {
     @Column(unique = true, nullable = false)
     private String name;
     @ManyToMany(mappedBy = "options")
-    @JsonBackReference
-    @ToString.Exclude
     private Set<Estimate> estimates = new HashSet<>();
 }

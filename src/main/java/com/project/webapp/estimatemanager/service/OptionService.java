@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 
 @Service
 @Transactional
@@ -28,18 +27,25 @@ public class OptionService {
 
     public OptDto addOption(OptDto optionDto) throws Exception {
         try {
-            Opt option = new Opt();
-            option.setName(optionDto.getName());
-            option.setType(optionDto.getType());
-            optionRepo.save(option);
-            return optionRepo.findOptById(option.getId()).stream()
-                    .map(source -> modelMapper.map(source, OptDto.class))
-                    .findFirst()
-                    .orElseThrow();
+            if (optionRepo.findOptByName(optionDto.getName()).isPresent())
+                throw new NameAlreadyTakenException("nome opzione non disponibile");
+            else {
+                Opt option = new Opt();
+                option.setName(optionDto.getName());
+                option.setType(optionDto.getType());
+                optionRepo.save(option);
+                return optionRepo
+                        .findOptById(option.getId()).stream()
+                        .map(source -> modelMapper.map(source, OptDto.class))
+                        .findFirst()
+                        .orElseThrow();
+            }
         } catch (NoSuchElementException e) {
             throw new NoSuchElementException("Elemento non trovato");
         } catch (NullPointerException e) {
             throw new NoSuchElementException("Nessun elemento nella lista");
+        } catch (NameAlreadyTakenException e) {
+            throw new NameAlreadyTakenException(e.getMessage());
         } catch (Exception e) {
             throw new Exception("Problema sconosciuto");
         }
@@ -78,35 +84,49 @@ public class OptionService {
         }
     }
 
-    public Optional<OptDto> findOptionById(Long id) throws Exception {
+    public OptDto findOptionById(Long id) throws Exception {
         try {
-            Optional<Opt> option = optionRepo.findOptById(id);
-            return option.stream()
-                    .map(source -> modelMapper.map(source, OptDto.class))
-                    .findFirst();
-        } catch (NullPointerException e) {
-            throw new Exception("Nessun elemento nella lista");
+            if (optionRepo.existsById(id))
+                return optionRepo.findOptById(id)
+                        .stream()
+                        .map(source -> modelMapper.map(source, OptDto.class))
+                        .findAny()
+                        .get();
+            else
+                throw new NoSuchElementException("Nessun elemento trovato");
+        } catch (NoSuchElementException e) {
+            throw new NoSuchElementException(e.getMessage());
         } catch (Exception e) {
             throw new Exception("Problema sconosciuto");
         }
     }
 
-    public Optional<OptDto> findOptionByName(String name) throws Exception {
-        try {
-            Optional<Opt> option = optionRepo.findOptByName(name);
-            return option.stream()
-                    .map(source -> modelMapper.map(source, OptDto.class))
-                    .findFirst();
-        } catch (NullPointerException e) {
-            throw new Exception("Nessun elemento nella lista");
-        } catch (Exception e) {
-            throw new Exception("Problema sconosciuto");
-        }
-    }
+//    public OptDto findOptionByName(String name) throws Exception {
+//        try {
+//            Optional<Opt> option = optionRepo.findOptByName(name);
+//            if (option.isPresent())
+//                return option
+//                        .stream()
+//                        .map(source -> modelMapper.map(source, OptDto.class))
+//                        .findFirst()
+//                        .orElseThrow();
+//            else
+//                throw new NoSuchElementException("Nessun elemento trovato");
+//        } catch (NoSuchElementException e) {
+//            throw new NoSuchElementException(e.getMessage());
+//        } catch (Exception e) {
+//            throw new Exception("Problema sconosciuto");
+//        }
+//    }
 
     public void deleteOption(Long id) throws Exception {
         try {
-            optionRepo.deleteOptById(id);
+            if (optionRepo.findOptById(id).isPresent())
+                optionRepo.deleteOptById(id);
+            else
+                throw new NoSuchElementException("Nessun elemento trovato");
+        } catch (NoSuchElementException e) {
+            throw new NoSuchElementException(e.getMessage());
         } catch (Exception e) {
             throw new Exception("Problema sconosciuto");
         }

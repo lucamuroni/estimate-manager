@@ -28,18 +28,25 @@ public class ProductService {
 
     public ProductDto addProduct(ProductDto productDto) throws Exception {
         try {
-            Product product = new Product();
-            product.setName(productDto.getName());
-            product.setImageUrl(productDto.getImageUrl());
-            productRepo.save(product);
-            return productRepo.findProductById(product.getId()).stream()
-                    .map(source -> modelMapper.map(source, ProductDto.class))
-                    .findFirst()
-                    .orElseThrow();
+            if (productRepo.findProductByName(productDto.getName()).isPresent())
+                throw new NameAlreadyTakenException("Nome prodotto non disponibile");
+            else {
+                Product product = new Product();
+                product.setName(productDto.getName());
+                product.setImageUrl(productDto.getImageUrl());
+                productRepo.save(product);
+                return productRepo
+                        .findProductById(product.getId()).stream()
+                        .map(source -> modelMapper.map(source, ProductDto.class))
+                        .findFirst()
+                        .orElseThrow();
+            }
         } catch (NoSuchElementException e) {
             throw new NoSuchElementException("Elemento non trovato");
         } catch (NullPointerException e) {
             throw new NoSuchElementException("Nessun elemento nella lista");
+        } catch (NameAlreadyTakenException e) {
+            throw new NameAlreadyTakenException(e.getMessage());
         } catch (Exception e) {
             throw new Exception("Problema sconosciuto");
         }
@@ -78,35 +85,50 @@ public class ProductService {
         }
     }
 
-    public Optional<ProductDto> findProductById(Long id) throws Exception {
+    public ProductDto findProductById(Long id) throws Exception {
         try {
             Optional<Product> product = productRepo.findProductById(id);
-            return product.stream()
-                    .map(source -> modelMapper.map(source, ProductDto.class))
-                    .findFirst();
-        } catch (NullPointerException e) {
-            throw new Exception("Nessun elemento nella lista");
+            if (product.isPresent())
+                return product
+                        .stream()
+                        .map(source -> modelMapper.map(source, ProductDto.class))
+                        .findFirst()
+                        .get();
+            else
+                throw new NoSuchElementException("Nessun elemento trovato");
+        } catch (NoSuchElementException e) {
+            throw new NoSuchElementException(e.getMessage());
         } catch (Exception e) {
             throw new Exception("Problema sconosciuto");
         }
     }
 
-    public Optional<ProductDto> findProductByName(String name) throws Exception {
-        try {
-            Optional<Product> product = productRepo.findProductByName(name);
-            return product.stream()
-                    .map(source -> modelMapper.map(source, ProductDto.class))
-                    .findFirst();
-        } catch (NullPointerException e) {
-            throw new Exception("Nessun elemento nella lista");
-        } catch (Exception e) {
-            throw new Exception("Problema sconosciuto");
-        }
-    }
+//    public ProductDto findProductByName(String name) throws Exception {
+//        try {
+//            Optional<Product> product = productRepo.findProductByName(name);
+//            if (product.isPresent())
+//                return product
+//                        .stream()
+//                        .map(source -> modelMapper.map(source, ProductDto.class))
+//                        .findFirst()
+//                        .get();
+//            else
+//                throw new NoSuchElementException("Nessun elemento trovato");
+//        } catch (NoSuchElementException e) {
+//            throw new NoSuchElementException(e.getMessage());
+//        } catch (Exception e) {
+//            throw new Exception("Problema sconosciuto");
+//        }
+//    }
 
     public void deleteProduct(Long id) throws Exception {
         try {
-            productRepo.deleteProductById(id);
+            if (productRepo.findProductById(id).isPresent())
+                productRepo.deleteProductById(id);
+            else
+                throw new NoSuchElementException("Nessun elemento trovato");
+        } catch (NoSuchElementException e) {
+            throw new NoSuchElementException(e.getMessage());
         } catch (Exception e) {
             throw new Exception(e.getMessage());
         }
