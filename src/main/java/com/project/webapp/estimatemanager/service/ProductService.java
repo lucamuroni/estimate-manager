@@ -130,17 +130,17 @@ public class ProductService {
         } catch (NoSuchElementException e) {
             throw new NoSuchElementException(e.getMessage());
         } catch (Exception e) {
-            throw new Exception(e.getMessage());
+            throw new Exception("Problema sconosciuto");
         }
     }
 
     private Product saveChanges(ProductDto productDto, Product product) throws Exception {
         try {
             if (!productDto.getName().equals(product.getName())) {
-                if (productRepo.findProductByName(productDto.getName()).isPresent()) {
+                if (productRepo.findProductByName(productDto.getName()).isPresent())
                     throw new NameAlreadyTakenException("Prodotto con quel nome già esistente");
-                }
-                product.setName(productDto.getName());
+                else
+                    product.setName(productDto.getName());
             }
             product.setImageUrl(productDto.getImageUrl());
             return product;
