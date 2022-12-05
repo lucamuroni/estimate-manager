@@ -26,6 +26,8 @@ public class SecurityConfig {
         http.csrf().disable()
                 .authorizeRequests()
                 .antMatchers("/auth/**").permitAll()
+                //.antMatchers("/estimate").hasRole("employee")
+                //.antMatchers("/estimate/user").hasRole("client")
                 .anyRequest().authenticated()
                 .and()
                 .httpBasic();
