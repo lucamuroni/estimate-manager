@@ -45,19 +45,19 @@ public class UserController {
         }
     }
 
-    @PostMapping(value = "/add")
-    public ResponseEntity<UserDto> addClient(@RequestBody UserDto user) throws GenericException, NoSuchElementException, NameAlreadyTakenException {
-        try {
-            UserDto newClient = userService.addUser(user);
-            return new ResponseEntity<>(newClient, HttpStatus.CREATED);
-        } catch (NameAlreadyTakenException e) {
-            throw new NameAlreadyTakenException(e.getMessage());
-        } catch (NoSuchElementException e) {
-            throw new NoSuchElementException(e.getMessage());
-        } catch (Exception e) {
-            throw new GenericException(e.getMessage());
-        }
-    }
+//    @PostMapping(value = "/add")
+//    public ResponseEntity<UserDto> addClient(@RequestBody UserDto user) throws GenericException, NoSuchElementException, NameAlreadyTakenException {
+//        try {
+//            UserDto newClient = userService.addUser(user);
+//            return new ResponseEntity<>(newClient, HttpStatus.CREATED);
+//        } catch (NameAlreadyTakenException e) {
+//            throw new NameAlreadyTakenException(e.getMessage());
+//        } catch (NoSuchElementException e) {
+//            throw new NoSuchElementException(e.getMessage());
+//        } catch (Exception e) {
+//            throw new GenericException(e.getMessage());
+//        }
+//    }
 
     @PutMapping(value = "/update")
     public ResponseEntity<UserDto> updateClient(@RequestBody UserDto userDto) throws NoSuchElementException, GenericException, NameAlreadyTakenException {

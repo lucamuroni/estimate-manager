@@ -10,22 +10,26 @@ import com.project.webapp.estimatemanager.repository.RoleRepo;
 import com.project.webapp.estimatemanager.repository.UserRepo;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
 public class UserService {
     private final UserRepo userRepo;
     private final RoleRepo roleRepo;
+    private final PasswordEncoder passwordEncoder;
     private final ModelMapper modelMapper;
 
     @Autowired
-    public UserService(UserRepo userRepo, RoleRepo roleRepo, ModelMapper modelMapper) {
+    public UserService(UserRepo userRepo, RoleRepo roleRepo, PasswordEncoder passwordEncoder, ModelMapper modelMapper) {
         this.userRepo = userRepo;
         this.roleRepo = roleRepo;
+        this.passwordEncoder = passwordEncoder;
         this.modelMapper = modelMapper;
     }
 
@@ -34,14 +38,15 @@ public class UserService {
             UserEntity user = this.saveChanges(userDto);
             userRepo.save(user);
             return userRepo
-                    .findUserEntityByEmail(user.getEmail()).stream()
+                    .findUserEntityById(user.getId())
+                    .stream()
                     .map(source -> modelMapper.map(source, UserDto.class))
                     .findFirst()
-                    .orElseThrow();
+                    .orElseThrow(() -> new NoSuchElementException("Elemento non trovato"));
         } catch (NoSuchElementException e) {
-            throw new NoSuchElementException("Elemento non trovato");
+            throw new NoSuchElementException(e.getMessage());
         } catch (NullPointerException e) {
-            throw new NoSuchElementException("Nessun elemento nella lista");
+            throw new NoSuchElementException("Lista inesistente");
         } catch (Exception e) {
             throw new Exception("Problema sconosciuto");
         }
@@ -138,7 +143,7 @@ public class UserService {
                 UserEntity user = new UserEntity();
                 user.setName(userDto.getName());
                 user.setEmail(userDto.getEmail());
-                user.setPassword(userDto.getPassword());
+                user.setPassword(passwordEncoder.encode(userDto.getPassword()));
                 user.setRoles(this.checkRoles(userDto.getRoles()));
                 return user;
             }
@@ -147,7 +152,7 @@ public class UserService {
         } catch (NoSuchElementException e) {
             throw new NoSuchElementException(e.getMessage());
         } catch (Exception e) {
-            throw new Exception(e.getMessage());
+            throw new Exception("Problema sconosciuto");
         }
     }
 
@@ -171,14 +176,22 @@ public class UserService {
 
     private Set<Role> checkRoles(Set<RoleDto> roleDto) throws NoSuchElementException, GenericException {
         try {
-            Set<Role> roles = new HashSet<>();
-            for (RoleDto role : roleDto) {
-                if (roleRepo.findById(role.getId()).isPresent())
-                    roles.add(roleRepo.findById(role.getId()).get());
-                else
-                    throw new NoSuchElementException("Ruolo non trovato");
+            Set<Long> roles = roleDto
+                    .stream()
+                    .map(RoleDto::getId)
+                    .collect(Collectors.toSet());
+            Set<Long> dbRoles = new HashSet<>(roleRepo.findAll())
+                    .stream()
+                    .map(Role::getId)
+                    .collect(Collectors.toSet());
+            if (dbRoles.containsAll(roles)) {
+                return roleDto
+                        .stream()
+                        .map(source -> modelMapper.map(source, Role.class))
+                        .collect(Collectors.toSet());
             }
-            return roles;
+            else
+                throw new NoSuchElementException("Ruolo non trovato");
         } catch (NoSuchElementException e) {
             throw new NoSuchElementException(e.getMessage());
         } catch (Exception e) {
