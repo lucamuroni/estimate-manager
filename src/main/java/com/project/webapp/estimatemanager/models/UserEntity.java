@@ -31,7 +31,7 @@ public class UserEntity implements Serializable {
     private Set<Estimate> client_estimates = new HashSet<>();
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "employee", orphanRemoval = true)
     private Set<Estimate> employee_estimates = new HashSet<>();
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"),

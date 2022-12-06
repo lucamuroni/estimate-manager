@@ -1,10 +1,11 @@
 package com.project.webapp.estimatemanager.controller;
 
+import com.project.webapp.estimatemanager.dtos.AuthResponseDto;
 import com.project.webapp.estimatemanager.dtos.LoginDto;
 import com.project.webapp.estimatemanager.dtos.UserDto;
 import com.project.webapp.estimatemanager.exception.GenericException;
 import com.project.webapp.estimatemanager.exception.NameAlreadyTakenException;
-import com.project.webapp.estimatemanager.service.RoleService;
+import com.project.webapp.estimatemanager.security.JWTGenerator;
 import com.project.webapp.estimatemanager.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -25,14 +26,15 @@ import java.util.NoSuchElementException;
 public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final UserService userService;
-    private final RoleService roleService;
+    //private final RoleService roleService;
+    private final JWTGenerator jwtGenerator;
 
 
     @Autowired
-    public AuthController(AuthenticationManager authenticationManager, UserService userService, RoleService roleService) {
+    public AuthController(AuthenticationManager authenticationManager, UserService userService, JWTGenerator jwtGenerator) {
         this.authenticationManager = authenticationManager;
         this.userService = userService;
-        this.roleService = roleService;
+        this.jwtGenerator = jwtGenerator;
     }
 
     @PostMapping(value = "/register")
@@ -50,12 +52,14 @@ public class AuthController {
     }
 
     @PostMapping(value = "/login")
-    public ResponseEntity<UserDto> login(@RequestBody LoginDto loginDto) throws NoSuchElementException, GenericException {
+    public ResponseEntity<AuthResponseDto> login(@RequestBody LoginDto loginDto) throws NoSuchElementException, GenericException {
         try {
             Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginDto.getEmail(), loginDto.getPassword()));
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            UserDto user = userService.findUserByEmail(loginDto.getEmail());
-            return new ResponseEntity<>(user, HttpStatus.OK);
+            String token = jwtGenerator.generateToken(authentication);
+            return new ResponseEntity<>(new AuthResponseDto(token), HttpStatus.OK);
+            //UserDto user = userService.findUserByEmail(loginDto.getEmail());
+            //return new ResponseEntity<>(user, HttpStatus.OK);
         } catch (NoSuchElementException e) {
             throw new NoSuchElementException(e.getMessage());
         } catch (Exception e) {
