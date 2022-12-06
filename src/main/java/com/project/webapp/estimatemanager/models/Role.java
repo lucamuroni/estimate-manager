@@ -22,4 +22,7 @@ public class Role implements Serializable {
     private String name;
     @ManyToMany(mappedBy = "roles")
     private Set<UserEntity> users = new HashSet<>();
+    public Role(String name) {
+        this.name = name;
+    }
 }

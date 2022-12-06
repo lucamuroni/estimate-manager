@@ -48,7 +48,7 @@ public class UserService {
         } catch (NullPointerException e) {
             throw new NoSuchElementException("Lista inesistente");
         } catch (Exception e) {
-            throw new Exception("Problema sconosciuto");
+            throw new Exception(e.getMessage());
         }
     }
 
@@ -152,7 +152,7 @@ public class UserService {
         } catch (NoSuchElementException e) {
             throw new NoSuchElementException(e.getMessage());
         } catch (Exception e) {
-            throw new Exception("Problema sconosciuto");
+            throw new Exception("Problema ancora sconosciuto");
         }
     }
 
@@ -170,7 +170,7 @@ public class UserService {
         } catch (NameAlreadyTakenException e) {
             throw new NameAlreadyTakenException(e.getMessage());
         } catch (Exception e) {
-            throw new GenericException("Problema sconosciuto");
+            throw new GenericException("Problema sempre sconosciuto");
         }
     }
 
@@ -195,7 +195,7 @@ public class UserService {
         } catch (NoSuchElementException e) {
             throw new NoSuchElementException(e.getMessage());
         } catch (Exception e) {
-            throw new GenericException("Problema sconosciuto");
+            throw new GenericException("Problema  super sconosciuto");
         }
     }
 }

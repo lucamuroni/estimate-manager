@@ -1,10 +1,10 @@
 package com.project.webapp.estimatemanager.dtos;
 
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter
-@Setter
+@Data
 public class ProductDto {
     private Long id;
     private String name;
