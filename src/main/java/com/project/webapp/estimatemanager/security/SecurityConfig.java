@@ -37,8 +37,7 @@ public class SecurityConfig {
                 .and()
                 .authorizeRequests()
                 .antMatchers("/auth/**").permitAll()
-                //.antMatchers("/estimate").hasRole("employee")
-                //.antMatchers("/estimate/user").hasRole("client")
+                //.antMatchers("/estimate/**").hasAuthority("CLIENT")
                 .anyRequest().authenticated()
                 .and()
                 .httpBasic();

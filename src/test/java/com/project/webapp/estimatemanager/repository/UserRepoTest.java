@@ -19,7 +19,7 @@ public class UserRepoTest {
     private UserRepo userRepo;
 
     @Test
-    public void UserRepo_SaveAll_ReturnSavedUser() {
+    public void UserRepo_Save_ReturnSavedUser() {
         //Arrange
         UserEntity user = UserEntity.builder().name("test").email("test@gmail.com").password("tests").build();
         //Act
@@ -45,7 +45,7 @@ public class UserRepoTest {
     }
 
     @Test
-    public void UserRepo_FindById_ReturnUserWithThatId() {
+    public void UserRepo_FindUserEntityById_ReturnUserWithThatId() {
         //Arrange
         UserEntity user = UserEntity.builder().name("test").email("test@gmail.com").password("tests").build();
         //Act
@@ -56,7 +56,7 @@ public class UserRepoTest {
     }
 
     @Test
-    public void UserRepo_FindByEmail_ReturnUserWithThatEmail() {
+    public void UserRepo_FindUserEntityByEmail_ReturnUserWithThatEmail() {
         //Arrange
         UserEntity user = UserEntity.builder().name("test").email("test@gmail.com").password("tests").build();
         //Act
@@ -82,7 +82,7 @@ public class UserRepoTest {
     }
 
     @Test
-    public void UserRepo_DeleteUserById_ReturnUserIsEmpty() {
+    public void UserRepo_DeleteUser_ReturnUserIsEmpty() {
         //Arrange
         UserEntity user = UserEntity.builder().name("test").email("test@gmail.com").password("tests").build();
         //Act
