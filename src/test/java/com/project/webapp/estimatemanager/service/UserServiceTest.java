@@ -9,13 +9,14 @@ import com.project.webapp.estimatemanager.repository.UserRepo;
 import org.assertj.core.api.Assertions;
 import org.junit.Rule;
 import org.junit.jupiter.api.Test;
-//import org.junit.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.rules.ExpectedException;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.*;
@@ -28,6 +29,8 @@ public class UserServiceTest {
     private UserRepo userRepo;
     @Mock
     private PasswordEncoder passwordEncoder;
+    @Spy
+    private ModelMapper modelMapper;
     @Mock
     private RoleRepo roleRepo;
     @InjectMocks
@@ -37,22 +40,43 @@ public class UserServiceTest {
 
     @Test
     public void UserService_AddUser_ReturnsUserDto() throws Exception {
+        //Roles coming from request
         Set<RoleDto> roles = new HashSet<>();
         roles.add(new RoleDto(1L, "client"));
-
-        UserEntity user = UserEntity.builder().name("test").email("test@gmail.com").password("tests").build();
-        UserDto userDto = UserDto.builder().name("test").email("test@gmail.com").password("test").roles(roles).build();
-        List<Role> dbRoles = new ArrayList<>();
+        //Roles from db
         Role role = new Role();
         role.setName("client");
         role.setId(1L);
+        List<Role> dbRoles = new ArrayList<>();
         dbRoles.add(role);
-
+        //Roles used to mock
+        Set<Role> savedRoles = new HashSet<>();
+        savedRoles.add(role);
+        //User used to mock the save method
+        UserEntity user = UserEntity.builder()
+                .id(1L)
+                .name("test")
+                .email("test@gmail.com")
+                .password("test")
+                .roles(savedRoles)
+                .client_estimates(new HashSet<>())
+                .employee_estimates(new HashSet<>())
+                .build();
+        //User used to mock the dto passed with the request
+        UserDto userDto = UserDto.builder()
+                .id(1L)
+                .name("test")
+                .email("test@gmail.com")
+                .password("test")
+                .roles(roles)
+                .build();
+        //Mocking some methods called by addUser
         when(userRepo.save(Mockito.any(UserEntity.class))).thenReturn(user);
-        //when(userRepo.findUserEntityByEmail(Mockito.any(String.class))).thenReturn(Optional.empty());
-        when(roleRepo.save(Mockito.any(Role.class))).thenReturn(role);
-
+        when(userRepo.findUserEntityByEmail(Mockito.any(String.class))).thenReturn(Optional.empty());
+        when(roleRepo.findAll()).thenReturn(dbRoles);
+        //Calling the real method
         UserDto savedUser = userService.addUser(userDto);
+        //Assertions
         Assertions.assertThat(savedUser).isNotNull();
     }
 

@@ -36,13 +36,18 @@ public class UserService {
     public UserDto addUser(UserDto userDto) throws Exception {
         try {
             UserEntity user = this.saveChanges(userDto);
-            userRepo.save(user);
-            return userRepo
-                    .findUserEntityById(user.getId())
+            Optional<UserEntity> savedUser = Optional.of(userRepo.save(user));
+            return savedUser
                     .stream()
                     .map(source -> modelMapper.map(source, UserDto.class))
                     .findFirst()
                     .orElseThrow(() -> new NoSuchElementException("Elemento non trovato"));
+//            return userRepo
+//                    .findUserEntityById(user.getId())
+//                    .stream()
+//                    .map(source -> modelMapper.map(source, UserDto.class))
+//                    .findFirst()
+//                    .orElseThrow(() -> new NoSuchElementException("Elemento non trovato"));
         } catch (NoSuchElementException e) {
             throw new NoSuchElementException(e.getMessage());
         } catch (NullPointerException e) {
