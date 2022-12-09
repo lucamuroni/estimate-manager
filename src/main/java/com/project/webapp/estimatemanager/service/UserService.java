@@ -61,8 +61,8 @@ public class UserService {
         try {
             UserEntity user = userRepo.findUserEntityById(userDto.getId()).orElseThrow();
             UserEntity modifiedClient = this.saveChanges(userDto, user);
-            userRepo.save(modifiedClient);
-            return userRepo.findUserEntityById(modifiedClient.getId())
+            Optional<UserEntity> savedUser = Optional.of(userRepo.save(modifiedClient));
+            return savedUser
                     .stream()
                     .map(source -> modelMapper.map(source, UserDto.class))
                     .findFirst()
@@ -94,7 +94,7 @@ public class UserService {
 
     public UserDto findUserById(Long id) throws Exception {
         try {
-            Optional<UserEntity> user = userRepo.findById(id);
+            Optional<UserEntity> user = userRepo.findUserEntityById(id);
             if (user.isPresent())
                 return user
                         .stream()
@@ -163,7 +163,7 @@ public class UserService {
 
     private UserEntity saveChanges(UserDto userDto, UserEntity user) throws NameAlreadyTakenException, GenericException {
         try {
-            if (userDto.getEmail().equals(user.getEmail())) {
+            if (!userDto.getEmail().equals(user.getEmail())) {
                 if (userRepo.findUserEntityByEmail(userDto.getEmail()).isPresent()) {
                     throw new NameAlreadyTakenException("Nome utente non disponibile");
                 }
