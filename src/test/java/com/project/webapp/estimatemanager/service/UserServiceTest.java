@@ -111,7 +111,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void UserService_UpdateUser_ReturnsUpdatesUser() throws Exception {
+    public void UserService_UpdateUser_ReturnsUpdatedUser() throws Exception {
         //Creation of the users used to mock the method
         UserEntity dbUser = UserEntity.builder().id(1L).name("test").email("test@gmail.com")
                 .password("test").roles(new HashSet<>()).client_estimates(new HashSet<>())
@@ -132,7 +132,7 @@ public class UserServiceTest {
 
     @Test
     public void UserService_DeleteUser_ReturnsEmptyUser() {
-        //Creation of the users used to mock the method
+        //Creation of the user used to mock the method
         UserEntity user = UserEntity.builder().id(1L).name("test").email("test@gmail.com")
                 .password("test").roles(new HashSet<>()).client_estimates(new HashSet<>())
                 .employee_estimates(new HashSet<>()).build();

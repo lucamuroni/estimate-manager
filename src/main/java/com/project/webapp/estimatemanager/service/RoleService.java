@@ -29,9 +29,8 @@ public class RoleService {
     public RoleDto addRole(RoleDto roleDto) throws Exception {
         try {
             Role role = this.saveChanges(roleDto);
-            roleRepo.save(role);
-            return roleRepo
-                    .findRoleByName(role.getName())
+            Optional<Role> savedRole = Optional.of(roleRepo.save(role));
+            return savedRole
                     .stream()
                     .map(source -> modelMapper.map(source, RoleDto.class))
                     .findFirst()
@@ -51,8 +50,8 @@ public class RoleService {
         try {
             Role role = roleRepo.findRoleById(roleDto.getId()).orElseThrow(() -> new NoSuchElementException("Ruolo non trovato"));
             Role modifiedRole = this.saveChanges(roleDto, role);
-            roleRepo.save(modifiedRole);
-            return roleRepo.findRoleById(modifiedRole.getId())
+            Optional<Role> savedRole = Optional.of(roleRepo.save(modifiedRole));
+            return savedRole
                     .stream()
                     .map(source -> modelMapper.map(source, RoleDto.class))
                     .findFirst()
