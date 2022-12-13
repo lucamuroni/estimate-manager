@@ -45,22 +45,22 @@ public class UserController {
         }
     }
 
-//    @PostMapping(value = "/add")
-//    public ResponseEntity<UserDto> addClient(@RequestBody UserDto user) throws GenericException, NoSuchElementException, NameAlreadyTakenException {
-//        try {
-//            UserDto newClient = userService.addUser(user);
-//            return new ResponseEntity<>(newClient, HttpStatus.CREATED);
-//        } catch (NameAlreadyTakenException e) {
-//            throw new NameAlreadyTakenException(e.getMessage());
-//        } catch (NoSuchElementException e) {
-//            throw new NoSuchElementException(e.getMessage());
-//        } catch (Exception e) {
-//            throw new GenericException(e.getMessage());
-//        }
-//    }
+    @PostMapping(value = "/add")
+    public ResponseEntity<UserDto> addClient(@RequestBody UserDto user) throws GenericException, NoSuchElementException, NameAlreadyTakenException {
+        try {
+            UserDto newClient = userService.addUser(user);
+            return new ResponseEntity<>(newClient, HttpStatus.CREATED);
+        } catch (NameAlreadyTakenException e) {
+            throw new NameAlreadyTakenException(e.getMessage());
+        } catch (NoSuchElementException e) {
+            throw new NoSuchElementException(e.getMessage());
+        } catch (Exception e) {
+            throw new GenericException(e.getMessage());
+        }
+    }
 
     @PutMapping(value = "/update")
-    public ResponseEntity<UserDto> updateClient(@RequestBody UserDto userDto) throws NoSuchElementException, GenericException, NameAlreadyTakenException {
+    public ResponseEntity<UserDto> updateUser(@RequestBody UserDto userDto) throws NoSuchElementException, GenericException, NameAlreadyTakenException {
         try {
             UserDto updateUser = userService.updateUser(userDto);
             return new ResponseEntity<>(updateUser, HttpStatus.OK);
@@ -74,7 +74,7 @@ public class UserController {
     }
 
     @DeleteMapping(value = "/delete/{id}")
-    public ResponseEntity<?> deleteClient(@PathVariable("id") Long id) throws NoSuchElementException, GenericException {
+    public ResponseEntity<?> deleteUser(@PathVariable("id") Long id) throws NoSuchElementException, GenericException {
         try {
             userService.deleteUser(id);
             return new ResponseEntity<>(HttpStatus.OK);

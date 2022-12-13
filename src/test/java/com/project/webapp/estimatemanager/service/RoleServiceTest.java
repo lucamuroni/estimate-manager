@@ -5,6 +5,7 @@ import com.project.webapp.estimatemanager.models.Role;
 import com.project.webapp.estimatemanager.repository.RoleRepo;
 import org.assertj.core.api.Assertions;
 import org.junit.Rule;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.rules.ExpectedException;
@@ -32,17 +33,22 @@ public class RoleServiceTest {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
+    private Role dbRole;
+    private RoleDto requestRole;
+
+    @BeforeEach
+    public void init() {
+        dbRole = Role.builder().id(1L).name("CLIENT").build();
+        requestRole = RoleDto.builder().id(1L).name("CLIENT").build();
+    }
+
     @Test
     public void RoleService_AddRole_ReturnsRoleDto() throws Exception {
-        //Role used to mock the save method
-        Role role = Role.builder().id(1L).name("CLIENT").build();
-        //Role used to mock the dto passed with the request
-        RoleDto roleDto = RoleDto.builder().name("CLIENT").build();
         //Mocking repo methods called by addUser
         when(roleRepo.findRoleByName(Mockito.any(String.class))).thenReturn(Optional.empty());
-        when(roleRepo.save(Mockito.any(Role.class))).thenReturn(role);
+        when(roleRepo.save(Mockito.any(Role.class))).thenReturn(dbRole);
         //Calling the real method
-        RoleDto savedRole = roleService.addRole(roleDto);
+        RoleDto savedRole = roleService.addRole(requestRole);
         //Assertions
         Assertions.assertThat(savedRole).isNotNull();
     }
@@ -61,10 +67,8 @@ public class RoleServiceTest {
 
     @Test
     public void RoleService_FindRoleById_ReturnsRoleWithThatId() throws Exception {
-        //Creation of the role used to mock the method
-        Role role = Role.builder().id(1L).name("CLIENT").build();
         //Mocking repo methods called by findRoleById
-        when(roleRepo.findRoleById(Mockito.any(Long.class))).thenReturn(Optional.of(role));
+        when(roleRepo.findRoleById(Mockito.any(Long.class))).thenReturn(Optional.of(dbRole));
         //Calling the real method
         RoleDto roleDto = roleService.findRoleById(1L);
         //Assertions
@@ -74,25 +78,22 @@ public class RoleServiceTest {
     @Test
     public void RoleService_UpdateRole_ReturnsUpdatedRole() throws Exception {
         //Creation of the roles used to mock the method
-        Role dbRole = Role.builder().id(1L).name("CLIENT").build();
-        RoleDto roleDto = RoleDto.builder().id(1L).name("CUSTOMER").build();
+        requestRole.setName("CUSTOMER");
         Role modifiedRole = Role.builder().id(1L).name("CUSTOMER").build();
         //Mocking repo methods called by updateRole
         when(roleRepo.findRoleById(Mockito.any(Long.class))).thenReturn(Optional.of(dbRole));
         when(roleRepo.findRoleByName(Mockito.any(String.class))).thenReturn(Optional.empty());
         when(roleRepo.save(Mockito.any(Role.class))).thenReturn(modifiedRole);
         //Calling the real method
-        RoleDto savedRole = roleService.updateRole(roleDto);
+        RoleDto savedRole = roleService.updateRole(requestRole);
         //Assertions
         Assertions.assertThat(savedRole).isNotNull();
     }
 
     @Test
     public void RoleService_DeleteRole_ReturnsEmptyRole() {
-        //Creation of the role used to mock the method
-        Role role = Role.builder().id(1L).name("CLIENT").build();
         //Mocking repo methods called by deleteRole
-        when(roleRepo.findRoleById(Mockito.any(Long.class))).thenReturn(Optional.of(role));
+        when(roleRepo.findRoleById(Mockito.any(Long.class))).thenReturn(Optional.of(dbRole));
         //Assertions
         assertAll(() -> roleService.deleteRole(1L));
     }

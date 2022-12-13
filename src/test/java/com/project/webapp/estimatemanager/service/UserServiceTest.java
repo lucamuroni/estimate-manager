@@ -8,6 +8,7 @@ import com.project.webapp.estimatemanager.repository.RoleRepo;
 import com.project.webapp.estimatemanager.repository.UserRepo;
 import org.assertj.core.api.Assertions;
 import org.junit.Rule;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.rules.ExpectedException;
@@ -39,6 +40,17 @@ public class UserServiceTest {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
+    private UserEntity dbUser;
+    private UserDto requestUser;
+
+    @BeforeEach
+    public void init() {
+        dbUser = UserEntity.builder().id(1L).name("test").email("test@gmail.com")
+                .password("test").build();
+        requestUser = UserDto.builder().id(1L).name("test").email("test@gmail.com")
+                .password("test").build();
+    }
+
     @Test
     public void UserService_AddUser_ReturnsUserDto() throws Exception {
         //Roles coming from request
@@ -53,19 +65,15 @@ public class UserServiceTest {
         //Roles used to mock
         Set<Role> savedRoles = new HashSet<>();
         savedRoles.add(role);
-        //User used to mock the save method
-        UserEntity user = UserEntity.builder().id(1L).name("test").email("test@gmail.com")
-                .password("test").roles(savedRoles).client_estimates(new HashSet<>())
-                .employee_estimates(new HashSet<>()).build();
-        //User used to mock the dto passed with the request
-        UserDto userDto = UserDto.builder().id(1L).name("test").email("test@gmail.com")
-                .password("test").roles(roles).build();
+        //Users used to mock the save method
+        dbUser.setRoles(savedRoles);
+        requestUser.setRoles(roles);
         //Mocking repo methods called by addUser
-        when(userRepo.save(Mockito.any(UserEntity.class))).thenReturn(user);
+        when(userRepo.save(Mockito.any(UserEntity.class))).thenReturn(dbUser);
         when(userRepo.findUserEntityByEmail(Mockito.any(String.class))).thenReturn(Optional.empty());
         when(roleRepo.findAll()).thenReturn(dbRoles);
         //Calling the real method
-        UserDto savedUser = userService.addUser(userDto);
+        UserDto savedUser = userService.addUser(requestUser);
         //Assertions
         Assertions.assertThat(savedUser).isNotNull();
     }
@@ -84,12 +92,8 @@ public class UserServiceTest {
 
     @Test
     public void UserService_FindUserById_ReturnsUserWithThatId() throws Exception{
-        //Creation of the user used to mock the method
-        UserEntity user = UserEntity.builder().id(1L).name("test").email("test@gmail.com")
-                .password("test").roles(new HashSet<>()).client_estimates(new HashSet<>())
-                .employee_estimates(new HashSet<>()).build();
         //Mocking repo methods called by findUserById
-        when(userRepo.findUserEntityById(Mockito.any(Long.class))).thenReturn(Optional.of(user));
+        when(userRepo.findUserEntityById(Mockito.any(Long.class))).thenReturn(Optional.of(dbUser));
         //Calling the real method
         UserDto userDto = userService.findUserById(1L);
         //Assertions
@@ -98,12 +102,8 @@ public class UserServiceTest {
 
     @Test
     public void UserService_FindUserByEmail_ReturnsUserWithThatEmail() throws Exception{
-        //Creation of the user used to mock the method
-        UserEntity user = UserEntity.builder().id(1L).name("test").email("test@gmail.com")
-                .password("test").roles(new HashSet<>()).client_estimates(new HashSet<>())
-                .employee_estimates(new HashSet<>()).build();
         //Mocking repo methods called by findUserById
-        when(userRepo.findUserEntityByEmail(Mockito.any(String.class))).thenReturn(Optional.of(user));
+        when(userRepo.findUserEntityByEmail(Mockito.any(String.class))).thenReturn(Optional.of(dbUser));
         //Calling the real method
         UserDto userDto = userService.findUserByEmail("test");
         //Assertions
@@ -112,32 +112,25 @@ public class UserServiceTest {
 
     @Test
     public void UserService_UpdateUser_ReturnsUpdatedUser() throws Exception {
-        //Creation of the users used to mock the method
-        UserEntity dbUser = UserEntity.builder().id(1L).name("test").email("test@gmail.com")
-                .password("test").roles(new HashSet<>()).client_estimates(new HashSet<>())
-                .employee_estimates(new HashSet<>()).build();
-        UserDto userDto = UserDto.builder().id(1L).name("prova").email("test@gmail.com")
-                .password("prova").roles(new HashSet<>()).build();
+        //User used to mock the method
         UserEntity modifiedUser = UserEntity.builder().id(1L).name("prova").email("test@gmail.com")
-                .password("prova").roles(new HashSet<>()).client_estimates(new HashSet<>())
-                .employee_estimates(new HashSet<>()).build();
+                .password("prova").build();
+        requestUser.setName("prova");
+        requestUser.setEmail("test@gmail.com");
+        requestUser.setPassword("prova");
         //Mocking repo methods called by updateUser
         when(userRepo.findUserEntityById(Mockito.any(Long.class))).thenReturn(Optional.of(dbUser));
         when(userRepo.save(Mockito.any(UserEntity.class))).thenReturn(modifiedUser);
         //Calling the real method
-        UserDto updatedUserDto = userService.updateUser(userDto);
+        UserDto updatedUserDto = userService.updateUser(requestUser);
         //Assertions
         Assertions.assertThat(updatedUserDto).isNotNull();
     }
 
     @Test
     public void UserService_DeleteUser_ReturnsEmptyUser() {
-        //Creation of the user used to mock the method
-        UserEntity user = UserEntity.builder().id(1L).name("test").email("test@gmail.com")
-                .password("test").roles(new HashSet<>()).client_estimates(new HashSet<>())
-                .employee_estimates(new HashSet<>()).build();
         //Mocking repo methods called by deleteUser
-        when(userRepo.findUserEntityById(Mockito.any(Long.class))).thenReturn(Optional.of(user));
+        when(userRepo.findUserEntityById(Mockito.any(Long.class))).thenReturn(Optional.of(dbUser));
         //Assertions
         assertAll(() -> userService.deleteUser(1L));
     }
