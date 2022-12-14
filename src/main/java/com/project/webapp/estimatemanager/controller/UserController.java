@@ -46,7 +46,7 @@ public class UserController {
     }
 
     @PostMapping(value = "/add")
-    public ResponseEntity<UserDto> addClient(@RequestBody UserDto user) throws GenericException, NoSuchElementException, NameAlreadyTakenException {
+    public ResponseEntity<UserDto> addUser(@RequestBody UserDto user) throws GenericException, NoSuchElementException, NameAlreadyTakenException {
         try {
             UserDto newClient = userService.addUser(user);
             return new ResponseEntity<>(newClient, HttpStatus.CREATED);

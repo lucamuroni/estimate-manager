@@ -48,7 +48,7 @@ public class RoleController {
     public ResponseEntity<RoleDto> addRole(@RequestBody RoleDto roleDto) throws GenericException, NameAlreadyTakenException, NoSuchElementException {
         try {
             RoleDto newRole = roleService.addRole(roleDto);
-            return new ResponseEntity<>(newRole, HttpStatus.OK);
+            return new ResponseEntity<>(newRole, HttpStatus.CREATED);
         } catch (NameAlreadyTakenException e) {
             throw new NameAlreadyTakenException(e.getMessage());
         } catch (NoSuchElementException e) {

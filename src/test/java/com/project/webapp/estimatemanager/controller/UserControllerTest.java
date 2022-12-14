@@ -3,14 +3,13 @@ package com.project.webapp.estimatemanager.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.webapp.estimatemanager.dtos.RoleDto;
 import com.project.webapp.estimatemanager.dtos.UserDto;
-import com.project.webapp.estimatemanager.models.Role;
-import com.project.webapp.estimatemanager.models.UserEntity;
 import com.project.webapp.estimatemanager.service.UserService;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -43,27 +42,20 @@ public class UserControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    private UserEntity dbUser;
     private UserDto requestUser;
 
     @BeforeEach
     public void init() {
-        dbUser = UserEntity.builder().id(1L).name("test").email("test@gmail.com")
-                .password("test").build();
         requestUser = UserDto.builder().id(1L).name("test").email("test@gmail.com")
                 .password("test").build();
-        Role dbRole = Role.builder().id(1L).name("CLIENT").build();
         RoleDto requestRole = RoleDto.builder().id(1L).name("CLIENT").build();
-        Set<Role> roles = new HashSet<>();
-        roles.add(dbRole);
-        dbUser.setRoles(roles);
         Set<RoleDto> roleDtos = new HashSet<>();
         roleDtos.add(requestRole);
         requestUser.setRoles(roleDtos);
     }
 
     @Test
-    public void UserController_AddClient_ReturnsCreated() throws Exception {
+    public void UserController_AddUser_ReturnsCreated() throws Exception {
         //Mocking the method when calling the service
         given(userService.addUser(ArgumentMatchers.any())).willAnswer(invocation -> invocation.getArgument(0));
         //Using MockMvc to mock the response
@@ -109,7 +101,7 @@ public class UserControllerTest {
     @Test
     public void UserController_UpdateUser_ReturnsUserDto() throws Exception {
         //Mocking the method when calling the service
-        when(userService.updateUser(requestUser)).thenReturn(requestUser);
+        when(userService.updateUser(Mockito.any(UserDto.class))).thenReturn(requestUser);
         //Using MockMvc to mock the response
         ResultActions response = mockMvc.perform(put("/user/update")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -124,7 +116,7 @@ public class UserControllerTest {
     @Test
     public void UserController_DeleteUser_ReturnsResponse() throws Exception {
         //Mocking the method when calling the service
-        doNothing().when(userService).deleteUser(1L);
+        doNothing().when(userService).deleteUser(Mockito.any(Long.class));
         //Using MockMvc to mock the response
         ResultActions response = mockMvc.perform(delete("/user/delete/1")
                 .contentType(MediaType.APPLICATION_JSON));
