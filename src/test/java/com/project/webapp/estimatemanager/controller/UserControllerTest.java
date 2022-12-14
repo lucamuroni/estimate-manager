@@ -71,13 +71,15 @@ public class UserControllerTest {
 
     @Test
     public void UserController_GetAllUsers_ReturnResponseDto() throws Exception {
+        //Users used to mock the method
         List<UserDto> userDtos = new ArrayList<>();
         userDtos.add(requestUser);
-
+        //Mocking the method when calling the service
         when(userService.findAllUsers()).thenReturn(userDtos);
-
+        //Using MockMvc to mock the response
         ResultActions response = mockMvc.perform(get("/user/all")
                 .contentType(MediaType.APPLICATION_JSON));
+        //Assertions
         response.andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.size()", CoreMatchers.is(userDtos.size())))
                 .andDo(MockMvcResultHandlers.print());
