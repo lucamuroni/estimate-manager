@@ -42,12 +42,6 @@ public class UserService {
                     .map(source -> modelMapper.map(source, UserDto.class))
                     .findFirst()
                     .orElseThrow(() -> new NoSuchElementException("Elemento non trovato"));
-//            return userRepo
-//                    .findUserEntityById(user.getId())
-//                    .stream()
-//                    .map(source -> modelMapper.map(source, UserDto.class))
-//                    .findFirst()
-//                    .orElseThrow(() -> new NoSuchElementException("Elemento non trovato"));
         } catch (NoSuchElementException e) {
             throw new NoSuchElementException(e.getMessage());
         } catch (NullPointerException e) {

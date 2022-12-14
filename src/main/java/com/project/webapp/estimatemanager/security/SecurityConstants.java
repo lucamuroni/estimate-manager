@@ -1,4 +1,4 @@
-package com.project.webapp.estimatemanager.service;
+package com.project.webapp.estimatemanager.security;
 
 public class SecurityConstants {
     public static final long JWT_EXPIRATION = 700000;
