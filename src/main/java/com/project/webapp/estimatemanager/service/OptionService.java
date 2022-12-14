@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -28,14 +29,14 @@ public class OptionService {
     public OptDto addOption(OptDto optionDto) throws Exception {
         try {
             if (optionRepo.findOptByName(optionDto.getName()).isPresent())
-                throw new NameAlreadyTakenException("nome opzione non disponibile");
+                throw new NameAlreadyTakenException("Nome opzione non disponibile");
             else {
                 Opt option = new Opt();
                 option.setName(optionDto.getName());
                 option.setType(optionDto.getType());
-                optionRepo.save(option);
-                return optionRepo
-                        .findOptById(option.getId()).stream()
+                Optional<Opt> savedOpt = Optional.of(optionRepo.save(option));
+                return savedOpt
+                        .stream()
                         .map(source -> modelMapper.map(source, OptDto.class))
                         .findFirst()
                         .orElseThrow();
