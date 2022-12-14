@@ -21,12 +21,12 @@ public class ProductRepoTest {
     private Product product;
 
     @BeforeEach
-    public void ProductRepo_SaveAll_ReturnsSavedProduct() {
+    public void init() {
         product = Product.builder().name("Computer").build();
     }
 
     @Test
-    public void RoleRepo_SaveAll_ReturnsSavedRole() {
+    public void ProductRepo_SaveAll_ReturnsSavedProduct() {
         Product savedProduct = productRepo.save(product);
 
         Assertions.assertThat(savedProduct).isNotNull();
@@ -35,7 +35,6 @@ public class ProductRepoTest {
 
     @Test
     public void ProductRepo_GetAll_ReturnsAllProductsFromDb() {
-
         Product product2 = Product.builder().name("Mouse").build();
 
         productRepo.save(product);
@@ -49,7 +48,6 @@ public class ProductRepoTest {
 
     @Test
     public void ProductRepo_FindById_ReturnsProductWithThatId() {
-
         productRepo.save(product);
         Product foundProduct = productRepo.findProductById(product.getId()).get();
 
@@ -77,11 +75,10 @@ public class ProductRepoTest {
 
     @Test
     public void ProductRepo_DeleteProduct_ReturnProductIsEmpty() {
-        //Act
         productRepo.save(product);
         productRepo.deleteProductById(product.getId());
         Optional<Product> productReturn = productRepo.findProductById(product.getId());
-        //Assert
+
         Assertions.assertThat(productReturn).isEmpty();
     }
 }
