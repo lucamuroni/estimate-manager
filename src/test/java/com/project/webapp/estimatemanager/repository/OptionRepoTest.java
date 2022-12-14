@@ -36,9 +36,9 @@ public class OptionRepoTest {
     @Test
     public void OptionRepo_GetAll_ReturnsAllOptionsFromDb() {
         Opt opt2 = Opt.builder().name("Sconto più grosso").type("2x1").build();
-
         optionRepo.save(opt);
         optionRepo.save(opt2);
+
         List<Opt> opts = optionRepo.findAll();
 
         Assertions.assertThat(opts).isNotNull();
@@ -49,6 +49,7 @@ public class OptionRepoTest {
     @Test
     public void OptionRepo_FindById_ReturnsOptionWithThatId() {
         optionRepo.save(opt);
+
         Opt foundOpt = optionRepo.findOptById(opt.getId()).get();
 
         Assertions.assertThat(foundOpt).isNotNull();
@@ -57,6 +58,7 @@ public class OptionRepoTest {
     @Test
     public void OptionRepo_FindByName_ReturnsOptionWithThatName() {
         optionRepo.save(opt);
+
         Opt foundOpt = optionRepo.findOptByName(opt.getName()).get();
 
         Assertions.assertThat(foundOpt).isNotNull();
@@ -64,8 +66,8 @@ public class OptionRepoTest {
 
     @Test
     public void OptionRepo_UpdateOption_ReturnUpdatedOption() {
-        optionRepo.save(opt);
-        Opt savedOpt = optionRepo.findOptById(opt.getId()).get();
+        Opt savedOpt = optionRepo.save(opt);
+
         savedOpt.setName("Sconticino");
         Opt updatedOpt = optionRepo.save(savedOpt);
 
@@ -75,11 +77,11 @@ public class OptionRepoTest {
 
     @Test
     public void OptionRepo_DeleteOption_ReturnOpitonIsEmpty() {
-        //Act
         optionRepo.save(opt);
+
         optionRepo.deleteOptById(opt.getId());
         Optional<Opt> optReturn = optionRepo.findOptById(opt.getId());
-        //Assert
+
         Assertions.assertThat(optReturn).isEmpty();
     }
 }
