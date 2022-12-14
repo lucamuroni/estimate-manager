@@ -2,6 +2,7 @@ package com.project.webapp.estimatemanager.repository;
 
 import com.project.webapp.estimatemanager.models.Role;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.jdbc.EmbeddedDatabaseConnection;
@@ -17,10 +18,15 @@ public class RoleRepoTest {
     @Autowired
     private RoleRepo roleRepo;
 
+    private Role role;
+
+    @BeforeEach
+    public void init() {
+        role = Role.builder().name("ADMIN").build();
+    }
+
     @Test
     public void RoleRepo_SaveAll_ReturnsSavedRole() {
-        //Arrange
-        Role role = Role.builder().name("ADMIN").build();
         //Act
         Role savedRole = roleRepo.save(role);
         //Assert
@@ -29,12 +35,11 @@ public class RoleRepoTest {
     }
 
     @Test
-    public void RoleRepo_GetAll_ReturnsMoreThanOneRole() {
+    public void RoleRepo_GetAll_ReturnsAllRolesFromDb() {
         //Arrange
-        Role role1 = Role.builder().name("ADMIN").build();
-        Role role2 = Role.builder().name("user").build();
+        Role role2 = Role.builder().name("USER").build();
         //Act
-        roleRepo.save(role1);
+        roleRepo.save(role);
         roleRepo.save(role2);
         List<Role> roles = roleRepo.findAll();
         //Assert
@@ -45,8 +50,6 @@ public class RoleRepoTest {
 
     @Test
     public void RoleRepo_FindById_ReturnsRoleWithThatId() {
-        //Arrange
-        Role role = Role.builder().name("ADMIN").build();
         //Act
         roleRepo.save(role);
         Role foundRole = roleRepo.findRoleById(role.getId()).get();
@@ -56,8 +59,6 @@ public class RoleRepoTest {
 
     @Test
     public void RoleRepo_FindByName_ReturnsRoleWithThatName() {
-        //Arrange
-        Role role = Role.builder().name("ADMIN").build();
         //Act
         roleRepo.save(role);
         Role foundRole = roleRepo.findRoleByName(role.getName()).get();
@@ -67,8 +68,6 @@ public class RoleRepoTest {
 
     @Test
     public void RoleRepo_UpdateRole_ReturnUpdatedRole() {
-        //Arrange
-        Role role = Role.builder().name("ADMIN").build();
         //Act
         roleRepo.save(role);
         Role savedRole = roleRepo.findRoleById(role.getId()).get();
@@ -81,8 +80,6 @@ public class RoleRepoTest {
 
     @Test
     public void RoleRepo_DeleteRole_ReturnRoleIsEmpty() {
-        //Arrange
-        Role role = Role.builder().name("ADMIN").build();
         //Act
         roleRepo.save(role);
         roleRepo.deleteRoleById(role.getId());

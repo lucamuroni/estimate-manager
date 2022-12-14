@@ -30,7 +30,7 @@ public class UserRepoTest {
     }
 
     @Test
-    public void UserRepo_GetAll_ReturnMoreThanOneUser() {
+    public void UserRepo_GetAll_ReturnAllUsersFromDb() {
         //Arrange
         UserEntity user1 = UserEntity.builder().name("uno").email("uno@gmail.com").password("uno").build();
         UserEntity user2 = UserEntity.builder().name("due").email("due@gmail.com").password("due").build();
