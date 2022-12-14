@@ -34,9 +34,9 @@ public class ProductService {
                 Product product = new Product();
                 product.setName(productDto.getName());
                 product.setImageUrl(productDto.getImageUrl());
-                productRepo.save(product);
-                return productRepo
-                        .findProductById(product.getId()).stream()
+                Optional<Product> savedProduct = Optional.of(productRepo.save(product));
+                return savedProduct
+                        .stream()
                         .map(source -> modelMapper.map(source, ProductDto.class))
                         .findFirst()
                         .orElseThrow();

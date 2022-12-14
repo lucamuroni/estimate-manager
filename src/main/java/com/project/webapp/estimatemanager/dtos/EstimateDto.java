@@ -1,14 +1,15 @@
 
 package com.project.webapp.estimatemanager.dtos;
 
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.HashSet;
 import java.util.Set;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class EstimateDto {
     private Long id;
     private Float price;

@@ -1,10 +1,11 @@
 package com.project.webapp.estimatemanager.dtos;
 
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class OptDto {
     private Long id;
     private String type;
