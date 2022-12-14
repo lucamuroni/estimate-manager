@@ -33,15 +33,15 @@ public class EstimateService {
         this.productRepo = productRepo;
         this.modelMapper = modelMapper;
         role = new Role();
-        role.setName("client");
+        role.setName("CLIENT");
     }
 
     public EstimateDto addEstimate(EstimateDto estimateDto) throws Exception {
         try {
             Estimate estimate = this.saveChanges(estimateDto);
-            estimateRepo.save(estimate);
-            return estimateRepo
-                    .findEstimateById(estimate.getId()).stream()
+            Optional<Estimate> savedEstimate = Optional.of(estimateRepo.save(estimate));
+            return savedEstimate
+                    .stream()
                     .map(source -> modelMapper.map(source, EstimateDto.class))
                     .findFirst()
                     .orElseThrow();

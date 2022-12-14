@@ -34,7 +34,6 @@ public class EstimateRepoTest {
     private Set<Opt> opts2;
     private Set<Role> clientRole;
     private Set<Role> employeeRole;
-    private Product product;
     private UserEntity client;
     private UserEntity employee;
 
@@ -44,17 +43,12 @@ public class EstimateRepoTest {
         Opt opt = Opt.builder().name("Sconto").type("2x1").build();
         optionRepo.save(opt);
         opts.add(opt);
+
         opts2 = new HashSet<>();
         Opt opt2 = Opt.builder().name("Sconticino").type("5%").build();
         optionRepo.save(opt2);
         opts2.add(opt2);
     }
-
-    //@BeforeEach
-    //public void initProduct() {
-        //product = Product.builder().name("Computer").build();
-        //productRepo.save(product);
-    //}
 
     @BeforeEach
     public void initRoles() {
@@ -62,6 +56,7 @@ public class EstimateRepoTest {
         Role role1 = Role.builder().name("CLIENT").build();
         roleRepo.save(role1);
         clientRole.add(role1);
+
         employeeRole = new HashSet<>();
         Role role2 = Role.builder().name("EMPLOYEE").build();
         roleRepo.save(role2);
@@ -70,22 +65,18 @@ public class EstimateRepoTest {
 
     @BeforeEach
     public void initUsers() {
-        //Set<UserEntity> clients = new HashSet<>();
         client = UserEntity.builder().name("prova").email("prova@gmail.com").password("prova").roles(clientRole).build();
         userRepo.save(client);
-        //clients.add(client);
-        //clientRole.stream().findFirst().get().setUsers(clients);
-        //Set<UserEntity> employees = new HashSet<>();
+
         employee = UserEntity.builder().name("default").email("default").password("default").roles(employeeRole).build();
         userRepo.save(employee);
-        //employees.add(employee);
-        //employeeRole.stream().findFirst().get().setUsers(employees);
     }
 
     @BeforeEach
     public void initEstimateAndProduct() {
-        product = Product.builder().name("Computer").build();
+        Product product = Product.builder().name("Computer").build();
         productRepo.save(product);
+
         estimate = Estimate.builder()
                 .client(client)
                 .employee(employee)
@@ -93,6 +84,7 @@ public class EstimateRepoTest {
                 .options(opts)
                 .price(0F)
                 .build();
+
         estimate2 = Estimate.builder()
                 .client(client)
                 .employee(employee)
