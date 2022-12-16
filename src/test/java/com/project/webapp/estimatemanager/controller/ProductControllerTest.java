@@ -1,8 +1,8 @@
 package com.project.webapp.estimatemanager.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.project.webapp.estimatemanager.dtos.RoleDto;
-import com.project.webapp.estimatemanager.service.RoleService;
+import com.project.webapp.estimatemanager.dtos.ProductDto;
+import com.project.webapp.estimatemanager.service.ProductService;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,83 +28,83 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 
-@WebMvcTest(controllers = RoleController.class)
+@WebMvcTest(controllers = ProductController.class)
 @AutoConfigureMockMvc(addFilters = false)
 @ExtendWith(MockitoExtension.class)
-public class RoleControllerTest {
+public class ProductControllerTest {
     @Autowired
     private MockMvc mockMvc;
     @MockBean
-    private RoleService roleService;
+    private ProductService productService;
     @Autowired
     private ObjectMapper objectMapper;
 
-    private RoleDto roleDto;
+    private ProductDto productDto;
 
     @BeforeEach
     public void init() {
-        roleDto = RoleDto.builder().id(1L).name("CLIENT").build();
+        productDto = ProductDto.builder().id(1L).name("Computer").imageUrl("test").build();
     }
 
     @Test
-    public void RoleController_AddRole_ReturnsCreated() throws Exception {
-        given(roleService.addRole(ArgumentMatchers.any())).willAnswer(invocation -> invocation.getArgument(0));
+    public void ProductController_AddProduct_ReturnsCreated() throws Exception {
+        given(productService.addProduct(ArgumentMatchers.any())).willAnswer(invocation -> invocation.getArgument(0));
 
-        ResultActions response = mockMvc.perform(post("/role/add")
+        ResultActions response = mockMvc.perform(post("/product/add")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(roleDto)));
+                .content(objectMapper.writeValueAsString(productDto)));
 
         response.andExpect(MockMvcResultMatchers.status().isCreated())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.name", CoreMatchers.is(roleDto.getName())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.name", CoreMatchers.is(productDto.getName())))
                 .andDo(MockMvcResultHandlers.print());
     }
 
     @Test
-    public void RoleController_GetAllRoles_ReturnResponseDto() throws Exception {
-        List<RoleDto> roles = new ArrayList<>();
-        roles.add(roleDto);
+    public void ProductController_GetAllProducts_ReturnResponseDto() throws Exception {
+        List<ProductDto> products = new ArrayList<>();
+        products.add(productDto);
 
-        when(roleService.findAllRoles()).thenReturn(roles);
+        when(productService.findAllProducts()).thenReturn(products);
 
-        ResultActions response = mockMvc.perform(get("/role/all")
+        ResultActions response = mockMvc.perform(get("/product/all")
                 .contentType(MediaType.APPLICATION_JSON));
 
         response.andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.size()", CoreMatchers.is(roles.size())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.size()", CoreMatchers.is(products.size())))
                 .andDo(MockMvcResultHandlers.print());
     }
 
     @Test
-    public void RoleController_GetRoleById_ReturnsRoleDto() throws Exception {
-        when(roleService.findRoleById(1L)).thenReturn(roleDto);
+    public void ProductController_GetProductById_ReturnsProductDto() throws Exception {
+        when(productService.findProductById(1L)).thenReturn(productDto);
 
-        ResultActions response = mockMvc.perform(get("/role/find/1")
+        ResultActions response = mockMvc.perform(get("/product/find/1")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(roleDto)));
+                .content(objectMapper.writeValueAsString(productDto)));
 
         response.andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.name", CoreMatchers.is(roleDto.getName())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.name", CoreMatchers.is(productDto.getName())))
                 .andDo(MockMvcResultHandlers.print());
     }
 
     @Test
-    public void RoleController_UpdateRole_ReturnsRoleDto() throws Exception {
-        when(roleService.updateRole(Mockito.any(RoleDto.class))).thenReturn(roleDto);
+    public void ProductController_UpdateProduct_ReturnsProductDto() throws Exception {
+        when(productService.updateProduct(Mockito.any(ProductDto.class))).thenReturn(productDto);
 
-        ResultActions response = mockMvc.perform(put("/role/update")
+        ResultActions response = mockMvc.perform(put("/product/update")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(roleDto)));
+                .content(objectMapper.writeValueAsString(productDto)));
 
         response.andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.name", CoreMatchers.is(roleDto.getName())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.name", CoreMatchers.is(productDto.getName())))
                 .andDo(MockMvcResultHandlers.print());
     }
 
     @Test
-    public void RoleController_DeleteRole_ReturnsResponse() throws Exception {
-        doNothing().when(roleService).deleteRole(Mockito.any(Long.class));
+    public void ProductController_DeleteProduct_ReturnsResponse() throws Exception {
+        doNothing().when(productService).deleteProduct(Mockito.any(Long.class));
 
-        ResultActions response = mockMvc.perform(delete("/role/delete/1")
+        ResultActions response = mockMvc.perform(delete("/product/delete/1")
                 .contentType(MediaType.APPLICATION_JSON));
 
         response.andExpect(MockMvcResultMatchers.status().isOk());
