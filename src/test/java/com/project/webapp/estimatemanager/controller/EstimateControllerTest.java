@@ -122,6 +122,39 @@ public class EstimateControllerTest {
     }
 
     @Test
+    public void EstimateController_GetEstimateByUserId_ReturnsEstimateDto() throws Exception {
+        List<EstimateDto> estimates = new ArrayList<>();
+        estimates.add(estimateDto);
+
+        when(estimateService.findEstimatesByUserId(Mockito.any(Long.class))).thenReturn(estimates);
+
+        ResultActions response = mockMvc.perform(get("/estimate/user/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(estimateDto)));
+
+        response.andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.size()", CoreMatchers.is(estimates.size())))
+                .andDo(MockMvcResultHandlers.print());
+    }
+
+    @Test
+    public void EstimateController_GetUnmanagedEstimate_ReturnsEstimateDto() throws Exception {
+        List<EstimateDto> estimates = new ArrayList<>();
+        estimates.add(estimateDto);
+
+        when(estimateService.findEstimatesByUserId(Mockito.any(Long.class))).thenReturn(estimates);
+        when(userService.findUserByEmail(Mockito.any(String.class))).thenReturn(estimateDto.getEmployee());
+
+        ResultActions response = mockMvc.perform(get("/estimate/unmanaged")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(estimateDto)));
+
+        response.andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.size()", CoreMatchers.is(estimates.size())))
+                .andDo(MockMvcResultHandlers.print());
+    }
+
+    @Test
     public void EstimateController_UpdateEstimate_ReturnsEstimateDto() throws Exception {
         when(estimateService.updateEstimate(Mockito.any(EstimateDto.class))).thenReturn(estimateDto);
 
